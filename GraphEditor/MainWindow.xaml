@@ -115,34 +115,40 @@
                 
         </StackPanel>
 
-        <StackPanel x:Name="TopPanel" 
-                    Orientation="Horizontal" 
-                    Background="DimGray"
-                    Grid.Column="1" Grid.ColumnSpan="2">
+        <Menu x:Name="Menu"
+              Background="DimGray"
+              Grid.Column="1" Grid.ColumnSpan="2">
+            <MenuItem Header="_File">
+                <MenuItem Header="Save">
+                    <MenuItem.Icon>
+                        <md:PackIcon Kind="ContentSave"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Graph">
+                <MenuItem Header="Algorithms">
+                    <MenuItem Header="A* search">
+                        
+                    </MenuItem>
+                    <MenuItem Header="Dijkstra's">
+                        
+                    </MenuItem>
+                    <MenuItem Header="Hamiltonian Circuits">
+                        
+                    </MenuItem>
+                    <MenuItem Header="Eulerian path">
+                        
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
 
-        </StackPanel>
-
-        <!--<ListBox x:Name="CanvasList"
-                 Grid.Row="1"
-                 Grid.Column="1">
-            <ListBox.ItemContainerStyle>
-            <Style TargetType="{x:Type ListBoxItem}">
-                <Setter Property="Canvas.Left"
-                            Value="{Binding X}"/>
-                <Setter Property="Canvas.Top"
-                           Value="{Binding Y}"/>
-            </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas IsItemsHost="True"/>
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-        </ListBox>-->
-
+        
         <Canvas x:Name="GraphCanvas"
                 ClipToBounds="True"
                 MouseLeftButtonDown="GraphCanvas_MouseLeftButtonDown"
+                MouseRightButtonDown="GraphCanvas_MouseRightButtonDown"
+                MouseMove="GraphCanvas_MouseMove"
                 Background="White"
                 Grid.Row="1"
                 Grid.Column="1">

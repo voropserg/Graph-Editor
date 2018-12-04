@@ -4,16 +4,13 @@ using System.Runtime.CompilerServices;
 
 namespace GraphEditor
 {
-    public class NotifyPropertyChanged : INotifyPropertyChanged
+    class NotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             if (PropertyChanged != null)
-            {
-                System.Console.WriteLine($"{prop} prop Change");
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
-            }
         }
 
     }

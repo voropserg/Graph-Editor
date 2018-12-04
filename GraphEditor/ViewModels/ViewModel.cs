@@ -19,8 +19,8 @@ namespace GraphEditor
     enum ToolMode { Point, Vertex, Edge, Hand, Zoom}
     class ViewModel : NotifyPropertyChanged
     {
-        public const double VERTEX_WIDTH = 50;
-        public const double VERTEX_HEIGHT = 50;
+        public  double VERTEX_WIDTH = 50;
+        public  double VERTEX_HEIGHT = 50;
         public SolidColorBrush VertexBrush;
         public SolidColorBrush EdgeBrush;
         public SolidColorBrush SelectedVertexBrush;
@@ -46,6 +46,7 @@ namespace GraphEditor
 
             SelectedVertexBrush = new SolidColorBrush(Colors.PaleGreen);
             VertexBrush = new SolidColorBrush(Colors.Purple);
+            EdgeBrush = new SolidColorBrush(Colors.Crimson);
         }
 
         public ToolMode ToolMode
@@ -54,7 +55,7 @@ namespace GraphEditor
             set
             {
                 mode = value;
-                OnPropertyChanged("ToolMode");
+                OnPropertyChanged();
             }
         }
 
@@ -64,7 +65,7 @@ namespace GraphEditor
             set
             {
                 graph = value;
-                OnPropertyChanged("Graph");
+                OnPropertyChanged();
             }
         }
 
@@ -84,8 +85,7 @@ namespace GraphEditor
             inerB.Height = VERTEX_HEIGHT;
             inerB.Background = new SolidColorBrush(Colors.Purple);
 
-            int index = Graph.Vertices.Count - 1;
-            Binding binding = new Binding($"Graph.Vertices[{index}].Name");
+            Binding binding = new Binding($"Graph[{v.Name}].Name");
             TextBlock tb = new TextBlock();
             tb.SetBinding(TextBlock.TextProperty, binding);
             tb.FontWeight = FontWeights.Bold;
@@ -95,7 +95,6 @@ namespace GraphEditor
             inerB.Child = tb;
             b.Child = inerB;
 
-            OnPropertyChanged("Graph");
             return b;
 
         }
@@ -106,21 +105,32 @@ namespace GraphEditor
             selectedVertices.Clear();
         }
 
-        public void AddSelectedVertex(Vertex vertex)
+        public bool AddSelectedVertex(Vertex vertex)
         {
             if (graph.Vertices.Contains(vertex))
-                selectedVertices.Add(vertex);
+            {
+                if (!selectedVertices.Contains(vertex))
+                    selectedVertices.Add(vertex);
+                else
+                {
+                    selectedVertices.Remove(vertex);
+                    return false;
+                }
+            }
             else
                 throw new Exception("Vertex does not belong to current graph");
+            return true;
         }
 
-        public void AddSelectedVertex(string name)
+        public bool AddSelectedVertex(string name)
         {
-            Vertex v = graph.FindVertexByName(name);
-            if (v != null)
-                selectedVertices.Add(graph.FindVertexByName(name));
-            else
-                throw new Exception("Vertex not found");
+            Vertex v = graph.FindVertex(name);
+            return AddSelectedVertex(v);
+        }
+
+        public void NewEdge(Vertex v1, Vertex v2)
+        {
+            
         }
     }
 }

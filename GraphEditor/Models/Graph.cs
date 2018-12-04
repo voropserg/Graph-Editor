@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+
 
 namespace GraphEditor
 {
     public enum EdgeOrientation { None, Direct, Inverted }
 
-    class Graph : NotifyPropertyChanged
+     public class Graph : NotifyPropertyChanged
     {
         private ObservableCollection<Vertex> vertices;
         private ObservableCollection<Edge> edges;
@@ -36,7 +45,7 @@ namespace GraphEditor
             set
             {
                 vertices = value;
-                OnPropertyChanged("Vertices");
+                OnPropertyChanged();
             }
         }
         public ObservableCollection<Edge> Edges
@@ -45,7 +54,7 @@ namespace GraphEditor
             set
             {
                 edges = value;
-                OnPropertyChanged("Edges");
+                OnPropertyChanged();
             }
         }
         public string Name
@@ -54,7 +63,7 @@ namespace GraphEditor
            set
            {
                 name = value;
-                OnPropertyChanged("Name");
+                OnPropertyChanged();
            }
         }
 
@@ -68,7 +77,7 @@ namespace GraphEditor
                 name = $"V{vertexCount}";
             Vertex v = new Vertex(x, y, name);
             vertices.Add(v);
-            OnPropertyChanged("Vertices");
+            OnPropertyChanged();
             return v;
         }
         public Vertex AddVertex(Point coordinates, string name = "")
@@ -83,7 +92,7 @@ namespace GraphEditor
             OnPropertyChanged("Vertices");
             return v;
         }
-        public Vertex FindVertexByName(string name)
+        public Vertex FindVertex(string name)
         {
             foreach (Vertex v in vertices)
                 if (v.Name == name)
@@ -99,9 +108,12 @@ namespace GraphEditor
         }
         public void RemoveVertex(Vertex vertex)
         {
-            foreach (Edge ed in edges)
-                if (ed.Belongs(vertex))
-                    RemoveEdge(ed);
+            for (int i = 0; i < edges.Count; i++)
+                if (edges[i].Belongs(vertex))
+                {
+                    RemoveEdge(edges[i]);
+                    i--;
+                }
             vertices.Remove(vertex);
         }
 
@@ -111,8 +123,19 @@ namespace GraphEditor
             edgeCount++;
             edges.Add(new Edge(firstVertex, secondVertex, orient, weight));
         }
+
+        public Edge FindEdge(string vName1, string vName2)
+        {
+            foreach (Edge e in edges)
+                if (e.FirstVertex.Name == vName1 && e.SecondVertex.Name == vName2)
+                    return e;
+            return null;
+
+        }
         public void RemoveEdge(Edge edge)
         {
+            edge.FirstVertex.Adjacent.Remove(edge.SecondVertex);
+            edge.SecondVertex.Adjacent.Remove(edge.FirstVertex);
             edges.Remove(edge);
         }
 
@@ -122,6 +145,22 @@ namespace GraphEditor
                 if (e.Orientation == EdgeOrientation.None)
                     return false;
             return true;
+        }
+
+        public Vertex this[string key]
+        {
+            get { return FindVertex(key); }
+            set
+            {
+                Vertex v = FindVertex(key);
+                v = value;
+                OnPropertyChanged("Vertices");
+            }
+        }
+
+        public Edge this[string key1, string key2]
+        {
+            get { return FindEdge(key1, key2); }
         }
 
     }
@@ -152,17 +191,29 @@ namespace GraphEditor
             set
             {
                 location = value;
-                OnPropertyChanged("Location");
+                OnPropertyChanged();
             }
         }
+
+
         public string Name
         {
             get { return name; }
             set
             {
                 name = value;
-                OnPropertyChanged("Name");
+                OnPropertyChanged();
             }
+        }
+
+        public bool AdjecentWith(Vertex vertex)
+        {
+            if (vertex == this)
+                return true;
+            foreach (Vertex v in Adjacent)
+                if (v == vertex)
+                    return true;
+            return false;
         }
 
 
@@ -179,6 +230,8 @@ namespace GraphEditor
         {
             firstVertex = vertex1;
             secondVertex = vertex2;
+            firstVertex.Adjacent.Add(secondVertex);
+            secondVertex.Adjacent.Add(firstVertex);
             this.weight = weight;
             orientation = orient;
         }
@@ -189,7 +242,7 @@ namespace GraphEditor
             set
             {
                 firstVertex = value;
-                OnPropertyChanged("FirstVertex");
+                OnPropertyChanged();
             }
         }
         public Vertex SecondVertex
@@ -198,7 +251,7 @@ namespace GraphEditor
             set
             {
                 secondVertex = value;
-                OnPropertyChanged("SecondVertex");
+                OnPropertyChanged();
             }
         }
         public int Weight
@@ -207,7 +260,7 @@ namespace GraphEditor
             set
             {
                 weight = value;
-                OnPropertyChanged("Weight");
+                OnPropertyChanged();
             }
 
         }
@@ -217,7 +270,7 @@ namespace GraphEditor
             set
             {
                 orientation = value;
-                OnPropertyChanged("Orientation");
+                OnPropertyChanged();
             }
         }
 
