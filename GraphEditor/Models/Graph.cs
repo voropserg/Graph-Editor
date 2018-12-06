@@ -3,43 +3,38 @@ using System.Collections.Generic;
 using System.Windows;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 
 namespace GraphEditor
 {
+    
     public enum EdgeOrientation { None, Direct, Inverted }
 
+    [Serializable]
      public class Graph : NotifyPropertyChanged
     {
-        private ObservableCollection<Vertex> vertices;
-        private ObservableCollection<Edge> edges;
+        private List<Vertex> vertices;
+        private List<Edge> edges;
         private string name;
         private int vertexCount;
         private int edgeCount;
 
         public Graph()
         {
-            vertices = new ObservableCollection<Vertex>();
-            edges = new ObservableCollection<Edge>();
+            vertices = new List<Vertex>();
+            edges = new List<Edge>();
             name = "";
         }
         public Graph(string name, IEnumerable<Vertex> vertices, IEnumerable<Edge> edges)
         {
-            this.vertices = new ObservableCollection<Vertex>(vertices);
-            this.edges = new ObservableCollection<Edge>(edges);
+            this.vertices = new List<Vertex>(vertices);
+            this.edges = new List<Edge>(edges);
             this.name = name;
         }
 
-        public ObservableCollection<Vertex> Vertices
+        public List<Vertex> Vertices
         {
             get { return vertices; }
             set
@@ -48,7 +43,7 @@ namespace GraphEditor
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<Edge> Edges
+        public List<Edge> Edges
         {
             get { return edges; }
             set
@@ -123,7 +118,6 @@ namespace GraphEditor
             edgeCount++;
             edges.Add(new Edge(firstVertex, secondVertex, orient, weight));
         }
-
         public Edge FindEdge(string vName1, string vName2)
         {
             foreach (Edge e in edges)
@@ -131,6 +125,13 @@ namespace GraphEditor
                     return e;
             return null;
 
+        }
+        public Edge FindEdge(Point p1, Point p2)
+        {
+            foreach (Edge e in edges)
+                if (e.FirstVertex.Position == p1 && e.SecondVertex.Position == p2)
+                    return e;
+            return null;
         }
         public void RemoveEdge(Edge edge)
         {
@@ -146,6 +147,7 @@ namespace GraphEditor
                     return false;
             return true;
         }
+
 
         public Vertex this[string key]
         {
@@ -165,6 +167,7 @@ namespace GraphEditor
 
     }
 
+    [Serializable]
     public class Vertex : NotifyPropertyChanged
     {
         private Point location;
@@ -174,17 +177,17 @@ namespace GraphEditor
         {
             this.name = name;
             location = new Point(x, y);
-            Adjacent = new ObservableCollection<Vertex>();
+            Adjacent = new List<Vertex>();
         }
         public Vertex(Point coordinates, string name)
         {
             this.name = name;
             location = coordinates;
-            Adjacent = new ObservableCollection<Vertex>();
+            Adjacent = new List<Vertex>();
 
         }
 
-        public ObservableCollection<Vertex> Adjacent { get; set; }
+        public List<Vertex> Adjacent { get; set; }
         public Point Position
         {
             get { return location; }
@@ -219,6 +222,7 @@ namespace GraphEditor
 
     }
 
+    [Serializable]
     public class Edge : NotifyPropertyChanged
     {
         private Vertex firstVertex;

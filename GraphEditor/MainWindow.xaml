@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GraphEditor"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:xt="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -112,7 +113,7 @@
 
         <StackPanel x:Name="RightPanel" 
                     Grid.Column="2" Grid.Row="1">
-                
+
         </StackPanel>
 
         <Menu x:Name="Menu"
@@ -128,35 +129,35 @@
             <MenuItem Header="_Graph">
                 <MenuItem Header="Algorithms">
                     <MenuItem Header="A* search">
-                        
+
                     </MenuItem>
                     <MenuItem Header="Dijkstra's">
-                        
+
                     </MenuItem>
                     <MenuItem Header="Hamiltonian Circuits">
-                        
+
                     </MenuItem>
                     <MenuItem Header="Eulerian path">
-                        
+
                     </MenuItem>
                 </MenuItem>
             </MenuItem>
         </Menu>
 
-        
-        <Canvas x:Name="GraphCanvas"
+        <xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
+                    Foreground="{DynamicResource MaterialDesignBody}">
+            <Canvas x:Name="GraphCanvas"
+                    Width="784" Height="702"
                 ClipToBounds="True"
                 MouseLeftButtonDown="GraphCanvas_MouseLeftButtonDown"
                 MouseRightButtonDown="GraphCanvas_MouseRightButtonDown"
                 MouseMove="GraphCanvas_MouseMove"
-                Background="White"
-                Grid.Row="1"
-                Grid.Column="1">
-            <TextBlock Canvas.Right="0" Canvas.Bottom="0" 
+                Background="White">
+                <TextBlock Canvas.Right="0" Canvas.Bottom="0" 
                        Foreground="Gray"
                        Text="{Binding Graph.Vertices.Count}">
-            </TextBlock>
-
-        </Canvas>
+                </TextBlock>
+            </Canvas>
+        </xt:Zoombox>
     </Grid>
 </Window>

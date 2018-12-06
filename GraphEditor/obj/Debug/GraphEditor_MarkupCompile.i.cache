@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\VS\GraphEditor\GraphEditor\obj\Debug\
+F:\Univ\GraphEditor\GraphEditor\obj\Debug\
 GraphEditor
 none
 false
 DEBUG;TRACE
-D:\VS\GraphEditor\GraphEditor\App.xaml
+F:\Univ\GraphEditor\GraphEditor\App.xaml
 11151548125
 
-121620355985
-15-1748355641
+121701665001
+211263957373
 MainWindow.xaml;
 
-False
+True
 

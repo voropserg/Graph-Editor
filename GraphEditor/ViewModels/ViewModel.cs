@@ -33,16 +33,16 @@ namespace GraphEditor
         private ToolMode mode;
 
 
-        private ObservableCollection<Vertex> selectedVertices;
-        private ObservableCollection<Edge> selectedEdges;
+        private List<Vertex> selectedVertices;
+        private List<Edge> selectedEdges;
 
         public ViewModel()
         {
             mode = ToolMode.Vertex;
             Graph = new Graph();
 
-            selectedEdges = new ObservableCollection<Edge>();
-            selectedVertices = new ObservableCollection<Vertex>();
+            selectedEdges = new List<Edge>();
+            selectedVertices = new List<Vertex>();
 
             SelectedVertexBrush = new SolidColorBrush(Colors.PaleGreen);
             VertexBrush = new SolidColorBrush(Colors.Purple);

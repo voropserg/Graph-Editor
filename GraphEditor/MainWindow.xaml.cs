@@ -19,13 +19,17 @@ namespace GraphEditor
     {
         bool vertexDragOn;
 
+        const double scaleRate = 1.1;
+
         //Edge
         bool edgeStart;
         Line tempLine;
         Vertex startVertex;
 
+
         //Undo/Redo
-        private List<bool> actList;
+        private Stack<Graph> undoGraphStack;
+        private Stack<Canvas> undoCanvasStack;
         
         bool ctrlHold;
 
@@ -41,7 +45,7 @@ namespace GraphEditor
 
             edgeStart = false;
 
-            actList = new List<bool>();
+            undoGraphStack = new Stack<Graph>();
 
             GraphCanvas.Cursor = Cursors.Pen;
 
@@ -64,7 +68,6 @@ namespace GraphEditor
                     Canvas.SetTop(b, position.Y - 25);
                     Panel.SetZIndex(b, 1);
                     GraphCanvas.Children.Add(b);
-                    actList.Add(true);
                     break;
                 case ToolMode.Point:
                     ResetSelection();
@@ -84,7 +87,6 @@ namespace GraphEditor
                 }
 
         }
-
 
 
         private void GraphCanvas_MouseMove(object sender, MouseEventArgs e)
@@ -191,8 +193,8 @@ namespace GraphEditor
                         edgeLine.SetBinding(Line.Y1Property, b1Y);
                         edgeLine.SetBinding(Line.X2Property, b2X);
                         edgeLine.SetBinding(Line.Y2Property, b2Y);
+                        edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
                         GraphCanvas.Children.Add(edgeLine);
-                        actList.Add(false);
                     }
 
 
@@ -244,6 +246,22 @@ namespace GraphEditor
                 v.Position = point;
             }
         }
+
+        private void Line_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (vm.ToolMode == ToolMode.Edge)
+            {
+                Console.WriteLine("Edge");
+                Line l = sender as Line;
+                Point p1 = new Point(l.X1, l.Y1);
+                Point p2 = new Point(l.X2, l.Y2);
+                vm.Graph.RemoveEdge(vm.Graph.FindEdge(p1, p2));
+                GraphCanvas.Children.Remove(l);
+
+                e.Handled = true;
+            }
+        }
+
 
 
         private void Tool_Click(object sender, RoutedEventArgs e)
@@ -298,5 +316,9 @@ namespace GraphEditor
             vm.ResetSelection();
         }
 
+        private void Zoombox_AnimationCompleted(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
