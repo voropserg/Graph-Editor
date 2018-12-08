@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 
 
@@ -19,14 +21,20 @@ namespace GraphEditor
     enum ToolMode { Point, Vertex, Edge, Hand, Zoom}
     class ViewModel : NotifyPropertyChanged
     {
-        public  double VERTEX_WIDTH = 50;
-        public  double VERTEX_HEIGHT = 50;
+        public double VERTEX_WIDTH = 50;
+        public double VERTEX_HEIGHT = 50;
         public SolidColorBrush VertexBrush;
         public SolidColorBrush EdgeBrush;
         public SolidColorBrush SelectedVertexBrush;
         public SolidColorBrush SelectedEdgeBrush;
 
+        private Stack<Graph> undoStack;
+        private Stack<Graph> redoStack;
 
+        private Graph prevChange;
+        private Graph redoGraph;
+
+        private bool redoState;
 
         private Graph graph;
 
@@ -47,6 +55,14 @@ namespace GraphEditor
             SelectedVertexBrush = new SolidColorBrush(Colors.PaleGreen);
             VertexBrush = new SolidColorBrush(Colors.Purple);
             EdgeBrush = new SolidColorBrush(Colors.Crimson);
+
+            undoStack = new Stack<Graph>();
+            redoStack = new Stack<Graph>();
+
+            redoState = false;
+
+            prevChange = DeepClone(graph);
+            SaveGraphState();
         }
 
         public ToolMode ToolMode
@@ -71,8 +87,31 @@ namespace GraphEditor
 
         public Border NewVertex(Point p, string name = "")
         {
-            Vertex v =  Graph.AddVertex(p, name);
+            Vertex v = Graph.AddVertex(p, name);
+            SaveGraphState();
+            return RenderVertex(v);
+        }
 
+        public void RemoveVertex(Vertex v)
+        {
+            Graph.RemoveVertex(v);
+            SaveGraphState();
+        }
+
+        public void RemoveEdge(Edge e)
+        {
+            Graph.RemoveEdge(e);
+            SaveGraphState();
+        }
+
+        public void AddEdge(Vertex v1, Vertex v2)
+        {
+            Graph.AddEdge(v1, v2);
+            SaveGraphState();
+        }
+
+        public Border RenderVertex(Vertex v)
+        {
             Border b = new Border();
             b.CornerRadius = new CornerRadius(VERTEX_HEIGHT / 2 + 3);
             b.Width = VERTEX_WIDTH + 6;
@@ -128,9 +167,53 @@ namespace GraphEditor
             return AddSelectedVertex(v);
         }
 
-        public void NewEdge(Vertex v1, Vertex v2)
+        public void SaveGraphState()
         {
-            
+            redoStack.Clear();
+            undoStack.Push(prevChange);
+            prevChange = DeepClone(graph);
+            redoState = false;
         }
+
+        public void UndoGraph()
+        {
+            if (undoStack.Count != 0)
+            {
+                redoStack.Push(DeepClone(Graph));
+                Graph = undoStack.Pop();
+                prevChange = DeepClone(Graph);
+                redoState = false;
+            }
+        }
+
+        public void RedoGraph()
+        {
+            if (redoStack.Count != 0)
+            {
+                if (!redoState)
+                {
+                    redoState = true;
+                    prevChange = DeepClone(Graph);
+                    undoStack.Push(prevChange);
+                }
+                Graph = redoStack.Pop();
+                prevChange = DeepClone(Graph);
+                undoStack.Push(prevChange);
+
+            }
+        }
+
+        public static T DeepClone<T> (T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formater = new BinaryFormatter();
+                formater.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formater.Deserialize(ms);
+            }
+        }
+
     }
 }

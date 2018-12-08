@@ -25,11 +25,7 @@ namespace GraphEditor
         bool edgeStart;
         Line tempLine;
         Vertex startVertex;
-
-
-        //Undo/Redo
-        private Stack<Graph> undoGraphStack;
-        private Stack<Canvas> undoCanvasStack;
+        
         
         bool ctrlHold;
 
@@ -44,8 +40,6 @@ namespace GraphEditor
             DataContext = vm;
 
             edgeStart = false;
-
-            undoGraphStack = new Stack<Graph>();
 
             GraphCanvas.Cursor = Cursors.Pen;
 
@@ -121,7 +115,21 @@ namespace GraphEditor
                 }
             else if (e.Key == Key.Z)
             {
-                
+                if (e.IsDown)
+                {
+                    vm.UndoGraph();
+                    BuildCanvas();
+                    Console.WriteLine("Undo graph");
+                }
+            }
+            else if (e.Key == Key.Y)
+            {
+                if (e.IsDown)
+                {
+                    vm.RedoGraph();
+                    BuildCanvas();
+                    Console.WriteLine("Redo Graph");
+                }
             }
 
         }
@@ -135,6 +143,7 @@ namespace GraphEditor
                 vertexDragOn = false;
                 Border b = sender as Border;
                 b.ReleaseMouseCapture();
+                vm.SaveGraphState();
             }
         }
 
@@ -179,8 +188,7 @@ namespace GraphEditor
                     Vertex endVertex = vm.Graph[tb.Text];
                     if (!startVertex.AdjecentWith(endVertex))
                     {
-                        vm.Graph.AddEdge(startVertex, endVertex);
-                        int index = vm.Graph.Edges.Count - 1;
+                        vm.AddEdge(startVertex, endVertex);
                         Binding b1X = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].FirstVertex.Position.X");
                         Binding b1Y = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].FirstVertex.Position.Y");
                         Binding b2X = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].SecondVertex.Position.X");
@@ -224,7 +232,7 @@ namespace GraphEditor
                             GraphCanvas.Children.Remove(l);
                         }
                 }
-                vm.Graph.RemoveVertex(v);
+                vm.RemoveVertex(v);
                 GraphCanvas.Children.Remove(b);
             }
         }
@@ -255,13 +263,12 @@ namespace GraphEditor
                 Line l = sender as Line;
                 Point p1 = new Point(l.X1, l.Y1);
                 Point p2 = new Point(l.X2, l.Y2);
-                vm.Graph.RemoveEdge(vm.Graph.FindEdge(p1, p2));
+                vm.RemoveEdge(vm.Graph.FindEdge(p1, p2));
                 GraphCanvas.Children.Remove(l);
 
                 e.Handled = true;
             }
         }
-
 
 
         private void Tool_Click(object sender, RoutedEventArgs e)
@@ -316,9 +323,41 @@ namespace GraphEditor
             vm.ResetSelection();
         }
 
-        private void Zoombox_AnimationCompleted(object sender, RoutedEventArgs e)
+        private void BuildCanvas()
         {
-
+            GraphCanvas.Children.Clear();
+            foreach(Vertex v in vm.Graph.Vertices)
+            {
+                Border b = vm.RenderVertex(v);
+                b.MouseLeftButtonDown += Vertex_MouseLeftButtonDown;
+                b.MouseLeftButtonUp += Vertex_MouseLeftButtonUp;
+                b.MouseRightButtonDown += Vertex_MouseRightButtonDown;
+                b.MouseMove += Vertex_MouseMove;
+                Panel.SetZIndex(b, 1);
+                Canvas.SetLeft(b, v.Position.X - vm.VERTEX_WIDTH / 2);
+                Canvas.SetTop(b, v.Position.Y - vm.VERTEX_HEIGHT / 2);
+                GraphCanvas.Children.Add(b);
+            }
+            foreach (Edge e in vm.Graph.Edges)
+            {
+                Line edgeLine = new Line();
+                Vertex v1 = e.FirstVertex;
+                Vertex v2 = e.SecondVertex;
+                Binding b1X = new Binding($"Graph[{v1.Name},{v2.Name}].FirstVertex.Position.X");
+                Binding b1Y = new Binding($"Graph[{v1.Name},{v2.Name}].FirstVertex.Position.Y");
+                Binding b2X = new Binding($"Graph[{v1.Name},{v2.Name}].SecondVertex.Position.X");
+                Binding b2Y = new Binding($"Graph[{v1.Name},{v2.Name}].SecondVertex.Position.Y");
+                edgeLine.Stroke = vm.EdgeBrush;
+                Panel.SetZIndex(edgeLine, 0);
+                edgeLine.StrokeThickness = 3;
+                edgeLine.SetBinding(Line.X1Property, b1X);
+                edgeLine.SetBinding(Line.Y1Property, b1Y);
+                edgeLine.SetBinding(Line.X2Property, b2X);
+                edgeLine.SetBinding(Line.Y2Property, b2Y);
+                edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
+                GraphCanvas.Children.Add(edgeLine);
+            }
         }
+
     }
 }

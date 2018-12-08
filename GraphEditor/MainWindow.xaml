@@ -17,15 +17,15 @@
         KeyDown="GraphCanvas_Key"
         KeyUp="GraphCanvas_Key"
         Title="Graph Editor" Height="768" Width="1024">
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="0.05*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.10*" MaxWidth="75"/>
+            <ColumnDefinition Width="0.10*" MaxWidth="175"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="0.20*"/>
+            <ColumnDefinition Width="0.20*" MaxWidth="200"/>
         </Grid.ColumnDefinitions>
 
         <Border Background="DimGray" BorderThickness="0.5">
@@ -144,20 +144,22 @@
             </MenuItem>
         </Menu>
 
-        <xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
-                    Foreground="{DynamicResource MaterialDesignBody}">
+        <!--<xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
+                    Foreground="{DynamicResource MaterialDesignBody}">-->
             <Canvas x:Name="GraphCanvas"
                     Width="784" Height="702"
-                ClipToBounds="True"
-                MouseLeftButtonDown="GraphCanvas_MouseLeftButtonDown"
-                MouseRightButtonDown="GraphCanvas_MouseRightButtonDown"
-                MouseMove="GraphCanvas_MouseMove"
-                Background="White">
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    ClipToBounds="True"
+                    MouseLeftButtonDown="GraphCanvas_MouseLeftButtonDown"
+                    MouseRightButtonDown="GraphCanvas_MouseRightButtonDown"
+                    MouseMove="GraphCanvas_MouseMove"
+                    Background="White">
                 <TextBlock Canvas.Right="0" Canvas.Bottom="0" 
                        Foreground="Gray"
                        Text="{Binding Graph.Vertices.Count}">
                 </TextBlock>
             </Canvas>
-        </xt:Zoombox>
+        <!--</xt:Zoombox>-->
     </Grid>
 </Window>
