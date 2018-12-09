@@ -55,6 +55,7 @@ namespace GraphEditor
             SelectedVertexBrush = new SolidColorBrush(Colors.PaleGreen);
             VertexBrush = new SolidColorBrush(Colors.Purple);
             EdgeBrush = new SolidColorBrush(Colors.Crimson);
+            SelectedEdgeBrush = new SolidColorBrush(Colors.Blue);
 
             undoStack = new Stack<Graph>();
             redoStack = new Stack<Graph>();
@@ -83,6 +84,15 @@ namespace GraphEditor
                 graph = value;
                 OnPropertyChanged();
             }
+        }
+
+        public List<Vertex> SelecteVertices
+        {
+            get { return selectedVertices; }
+        }
+        public List<Edge> SelectedEdges
+        {
+            get { return selectedEdges; }
         }
 
         public Border NewVertex(Point p, string name = "")
@@ -146,18 +156,25 @@ namespace GraphEditor
 
         public bool AddSelectedVertex(Vertex vertex)
         {
-            if (graph.Vertices.Contains(vertex))
-            {
-                if (!selectedVertices.Contains(vertex))
-                    selectedVertices.Add(vertex);
-                else
-                {
-                    selectedVertices.Remove(vertex);
-                    return false;
-                }
-            }
+            if (!selectedVertices.Contains(vertex))
+                selectedVertices.Add(vertex);
             else
-                throw new Exception("Vertex does not belong to current graph");
+            {
+                selectedVertices.Remove(vertex);
+                return false;
+            }
+            return true;
+        }
+
+        public bool AddSelectedEdge(Edge edge)
+        {
+            if (!selectedEdges.Contains(edge))
+                selectedEdges.Add(edge);
+            else
+            {
+                selectedEdges.Remove(edge);
+                return false;
+            }
             return true;
         }
 

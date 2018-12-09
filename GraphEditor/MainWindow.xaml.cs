@@ -25,8 +25,8 @@ namespace GraphEditor
         bool edgeStart;
         Line tempLine;
         Vertex startVertex;
-        
-        
+
+
         bool ctrlHold;
 
         private ViewModel vm;
@@ -58,6 +58,8 @@ namespace GraphEditor
                     b.MouseLeftButtonUp += Vertex_MouseLeftButtonUp;
                     b.MouseRightButtonDown += Vertex_MouseRightButtonDown;
                     b.MouseMove += Vertex_MouseMove;
+                    //b.MouseWheel += Vertex_MouseWheel;
+                    //b.RenderTransform = new ScaleTransform();
                     Canvas.SetLeft(b, position.X - 25);
                     Canvas.SetTop(b, position.Y - 25);
                     Panel.SetZIndex(b, 1);
@@ -82,7 +84,6 @@ namespace GraphEditor
 
         }
 
-
         private void GraphCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             Point position = e.GetPosition(GraphCanvas);
@@ -93,6 +94,52 @@ namespace GraphEditor
             }
 
         }
+
+        //private void Vertex_MouseWheel(object sender, MouseWheelEventArgs e)
+        //{
+        //    if(e.Delta > 0)
+        //    {
+        //        foreach(UIElement ue in GraphCanvas.Children)
+        //        {
+        //            Border b = ue as Border;
+        //            if (b != null)
+        //            {
+        //                ScaleTransform st = b.RenderTransform as ScaleTransform;
+        //                st.ScaleX *= 1.1;
+        //                st.ScaleY *= 1.1;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        foreach (UIElement ue in GraphCanvas.Children)
+        //        {
+        //            Border b = ue as Border;
+        //            if (b != null)
+        //            {
+        //                ScaleTransform st = b.RenderTransform as ScaleTransform;
+        //                st.ScaleX /= 1.1;
+        //                st.ScaleY /= 1.1;
+        //            }
+        //        }
+
+        //    }
+        //}
+
+        //private void GraphCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        //{
+        //    Console.WriteLine("boop");
+        //    if (e.Delta > 0)
+        //    {
+        //        Scale.ScaleX *= 1.1;
+        //        Scale.ScaleY *= 1.1;
+        //    }
+        //    else if (e.Delta < 0)
+        //    {
+        //        Scale.ScaleX /= 1.1;
+        //        Scale.ScaleY /= 1.1;
+        //    }
+        //}
 
 
         private void GraphCanvas_Key(object sender, KeyEventArgs e)
@@ -111,7 +158,7 @@ namespace GraphEditor
                         this.Cursor = Cursors.Arrow;
                     ctrlHold = false;
                 }
-               
+
             }
             if (e.IsDown)
             {
@@ -131,6 +178,17 @@ namespace GraphEditor
                 {
                     RightPanel.Visibility = Visibility.Collapsed;
                     Grid.SetColumnSpan(GraphCanvas, 2);
+                }
+                else if (e.Key == Key.Delete)
+                {
+                    foreach (Edge edge in vm.SelectedEdges)
+                        RemoveEdge(FindEdge(edge));
+                    vm.SelectedEdges.Clear();
+
+                    foreach (Vertex v in vm.SelecteVertices)
+                        RemoveVertex(v, FindVertex(v));
+                    vm.SelecteVertices.Clear();
+
                 }
             }
 
@@ -196,14 +254,30 @@ namespace GraphEditor
                         Binding b2X = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].SecondVertex.Position.X");
                         Binding b2Y = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].SecondVertex.Position.Y");
                         Line edgeLine = new Line();
-                        edgeLine.Stroke = vm.EdgeBrush;
+
+                        double dx = startVertex.Position.X - endVertex.Position.X;
+                        double dy = startVertex.Position.Y - endVertex.Position.Y;
+                        double norm = Math.Sqrt(dx * dx + dy * dy);
+                        double udx = dx / norm;
+                        double udy = dy / norm;
+                        double ax = udx * Math.Sqrt(3) / 2 - udy * 1 / 2;
+                        double ay = udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+                        double bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
+                        double by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+                        Line wing1 = new Line();
+                        Line wing2 = new Line();
+                        wing1.Stroke = wing2.Stroke = edgeLine.Stroke = vm.EdgeBrush;
+                        wing1.StrokeThickness = wing2.StrokeThickness = edgeLine.StrokeThickness = 4;
+                        Panel.SetZIndex(wing1, 0);
+                        Panel.SetZIndex(wing2, 0);
                         Panel.SetZIndex(edgeLine, 0);
-                        edgeLine.StrokeThickness = 4;
+
                         edgeLine.SetBinding(Line.X1Property, b1X);
                         edgeLine.SetBinding(Line.Y1Property, b1Y);
                         edgeLine.SetBinding(Line.X2Property, b2X);
                         edgeLine.SetBinding(Line.Y2Property, b2Y);
                         edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
+                        edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                         GraphCanvas.Children.Add(edgeLine);
                     }
 
@@ -222,20 +296,7 @@ namespace GraphEditor
                 Border bCh = b.Child as Border;
                 TextBlock tb = bCh.Child as TextBlock;
                 Vertex v = vm.Graph[tb.Text];
-                int len = GraphCanvas.Children.Count;
-                for (int i = 0; i < len; i++)
-                {
-                    Line l = GraphCanvas.Children[i] as Line;
-                    if (l != null)
-                        if (l.X1 == v.Position.X || l.X2 == v.Position.X || l.Y1 == v.Position.Y || l.Y2 == v.Position.Y)
-                        {
-                            len--;
-                            i--;
-                            GraphCanvas.Children.Remove(l);
-                        }
-                }
-                vm.RemoveVertex(v);
-                GraphCanvas.Children.Remove(b);
+                RemoveVertex(v, b);
             }
         }
 
@@ -261,15 +322,29 @@ namespace GraphEditor
         {
             if (vm.ToolMode == ToolMode.Edge)
             {
-                Console.WriteLine("Edge");
-                Line l = sender as Line;
-                Point p1 = new Point(l.X1, l.Y1);
-                Point p2 = new Point(l.X2, l.Y2);
-                vm.RemoveEdge(vm.Graph.FindEdge(p1, p2));
-                GraphCanvas.Children.Remove(l);
-
-                e.Handled = true;
+                RemoveEdge(sender as Line);
             }
+            e.Handled = true;
+        }
+        private void Line_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (vm.ToolMode == ToolMode.Point)
+            {
+                if (!ctrlHold)
+                    ResetSelection();
+                Line l = sender as Line;
+                if (vm.AddSelectedEdge(vm.Graph.FindEdge(new Point(l.X1, l.Y1), new Point(l.X2, l.Y2))))
+                {
+                    l.Stroke = vm.SelectedEdgeBrush;
+                    Console.WriteLine("Edge selected");
+                }
+                else
+                {
+                    l.Stroke = vm.EdgeBrush;
+                    Console.WriteLine("Edge desected");
+                }
+            }
+            e.Handled = true;
         }
 
 
@@ -302,7 +377,7 @@ namespace GraphEditor
                     GraphCanvas.Cursor = Cursors.ScrollNS;
                     break;
             }
-            if(tempLine != null)
+            if (tempLine != null)
             {
                 edgeStart = false;
                 GraphCanvas.Children.Remove(tempLine);
@@ -313,7 +388,8 @@ namespace GraphEditor
 
         private void ResetSelection()
         {
-            foreach(UIElement el in GraphCanvas.Children)
+            Console.WriteLine("Reset selection");
+            foreach (UIElement el in GraphCanvas.Children)
             {
                 if (el is Border)
                 {
@@ -321,8 +397,71 @@ namespace GraphEditor
                     Border bCh = b.Child as Border;
                     bCh.Background = vm.VertexBrush;
                 }
+                else if (el is Line)
+                {
+                    Line l = el as Line;
+                    l.Stroke = vm.EdgeBrush;
+                }
             }
             vm.ResetSelection();
+        }
+
+        private void RemoveVertex(Vertex v, Border b)
+        {
+            int len = GraphCanvas.Children.Count;
+            for (int i = 0; i < len; i++)
+            {
+                Line l = GraphCanvas.Children[i] as Line;
+                if (l != null)
+                    if (l.X1 == v.Position.X || l.X2 == v.Position.X || l.Y1 == v.Position.Y || l.Y2 == v.Position.Y)
+                    {
+                        len--;
+                        i--;
+                        GraphCanvas.Children.Remove(l);
+                    }
+            }
+            vm.RemoveVertex(v);
+            GraphCanvas.Children.Remove(b);
+
+        }
+
+        private void RemoveEdge(Line l)
+        {
+            Point p1 = new Point(l.X1, l.Y1);
+            Point p2 = new Point(l.X2, l.Y2);
+            vm.RemoveEdge(vm.Graph.FindEdge(p1, p2));
+            GraphCanvas.Children.Remove(l);
+        }
+
+        private Border FindVertex(Vertex v)
+        {
+            foreach (UIElement ue in GraphCanvas.Children)
+            {
+                if (ue is Border)
+                {
+                    Border b = ue as Border;
+                    Border chB = b.Child as Border;
+                    TextBlock tb = chB.Child as TextBlock;
+                    if (tb.Text == v.Name)
+                        return b;
+                }
+            }
+            return null;
+        }
+
+        private Line FindEdge(Edge e)
+        {
+            foreach (UIElement ue in GraphCanvas.Children)
+            {
+                if (ue is Line)
+                {
+                    Line l = ue as Line;
+                    if (l.X1 == e.FirstVertex.Position.X && l.Y1 == e.FirstVertex.Position.Y
+                        && l.X2 == e.SecondVertex.Position.X && l.Y2 == e.SecondVertex.Position.Y)
+                        return l;
+                }
+            }
+            return null;
         }
 
         private void BuildCanvas()

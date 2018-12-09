@@ -23,7 +23,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.10*" MaxWidth="175"/>
+            <ColumnDefinition Width="0.10*" MaxWidth="100"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="0.20*" MaxWidth="200"/>
         </Grid.ColumnDefinitions>
@@ -145,21 +145,29 @@
             </MenuItem>
         </Menu>
 
-        <!--<xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
+        <!--<xt:Zoombox x:Name="zoombox" Grid.Column="1" Grid.Row="1"
                     Foreground="{DynamicResource MaterialDesignBody}">-->
+        <!--<ScrollViewer Grid.Column="1"
+                     Grid.Row="1">-->
             <Canvas x:Name="GraphCanvas"
                     Grid.Column="1"
                     Grid.Row="1"
+                    Width="780"
+                    Height="700"
                     ClipToBounds="True"
                     MouseLeftButtonDown="GraphCanvas_MouseLeftButtonDown"
                     MouseRightButtonDown="GraphCanvas_MouseRightButtonDown"
                     MouseMove="GraphCanvas_MouseMove"
                     Background="White">
+                <Canvas.RenderTransform>
+                    <ScaleTransform x:Name="Scale"/>
+                </Canvas.RenderTransform>
                 <TextBlock Canvas.Right="0" Canvas.Bottom="0" 
                        Foreground="Gray"
                        Text="{Binding Graph.Vertices.Count}">
                 </TextBlock>
             </Canvas>
+        <!--</ScrollViewer>-->
         <!--</xt:Zoombox>-->
     </Grid>
 </Window>
