@@ -98,37 +98,39 @@ namespace GraphEditor
         private void GraphCanvas_Key(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl)
-                switch (vm.ToolMode)
-                {
-                    case ToolMode.Point:
-                        if (e.IsDown)
-                        {
-                            this.Cursor = Cursors.Hand;
-                            ctrlHold = true;
-                        }
-                        else if (e.IsUp)
-                        {
-                            this.Cursor = Cursors.Arrow;
-                            ctrlHold = false;
-                        }
-                        break;
-                }
-            else if (e.Key == Key.Z)
             {
                 if (e.IsDown)
+                {
+                    if (vm.ToolMode == ToolMode.Point)
+                        this.Cursor = Cursors.Hand;
+                    ctrlHold = true;
+                }
+                else
+                {
+                    if (vm.ToolMode == ToolMode.Point)
+                        this.Cursor = Cursors.Arrow;
+                    ctrlHold = false;
+                }
+               
+            }
+            if (e.IsDown)
+            {
+                if (e.Key == Key.Z)
                 {
                     vm.UndoGraph();
                     BuildCanvas();
                     Console.WriteLine("Undo graph");
                 }
-            }
-            else if (e.Key == Key.Y)
-            {
-                if (e.IsDown)
+                else if (e.Key == Key.Y)
                 {
                     vm.RedoGraph();
                     BuildCanvas();
                     Console.WriteLine("Redo Graph");
+                }
+                else if (e.Key == Key.L)
+                {
+                    RightPanel.Visibility = Visibility.Collapsed;
+                    Grid.SetColumnSpan(GraphCanvas, 2);
                 }
             }
 
@@ -176,7 +178,7 @@ namespace GraphEditor
                     tempLine = new Line();
                     startVertex = vm.Graph[tb.Text];
                     tempLine.Stroke = vm.EdgeBrush;
-                    tempLine.StrokeThickness = 3;
+                    tempLine.StrokeThickness = 4;
                     tempLine.X1 = tempLine.X2 = startVertex.Position.X;
                     tempLine.Y1 = tempLine.Y2 = startVertex.Position.Y;
                     GraphCanvas.Children.Add(tempLine);
@@ -196,7 +198,7 @@ namespace GraphEditor
                         Line edgeLine = new Line();
                         edgeLine.Stroke = vm.EdgeBrush;
                         Panel.SetZIndex(edgeLine, 0);
-                        edgeLine.StrokeThickness = 3;
+                        edgeLine.StrokeThickness = 4;
                         edgeLine.SetBinding(Line.X1Property, b1X);
                         edgeLine.SetBinding(Line.Y1Property, b1Y);
                         edgeLine.SetBinding(Line.X2Property, b2X);
@@ -349,7 +351,7 @@ namespace GraphEditor
                 Binding b2Y = new Binding($"Graph[{v1.Name},{v2.Name}].SecondVertex.Position.Y");
                 edgeLine.Stroke = vm.EdgeBrush;
                 Panel.SetZIndex(edgeLine, 0);
-                edgeLine.StrokeThickness = 3;
+                edgeLine.StrokeThickness = 4;
                 edgeLine.SetBinding(Line.X1Property, b1X);
                 edgeLine.SetBinding(Line.Y1Property, b1Y);
                 edgeLine.SetBinding(Line.X2Property, b2X);

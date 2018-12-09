@@ -141,13 +141,13 @@
 
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header="Make oriented"/>
             </MenuItem>
         </Menu>
 
         <!--<xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
                     Foreground="{DynamicResource MaterialDesignBody}">-->
             <Canvas x:Name="GraphCanvas"
-                    Width="784" Height="702"
                     Grid.Column="1"
                     Grid.Row="1"
                     ClipToBounds="True"
