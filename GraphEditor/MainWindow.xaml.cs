@@ -42,8 +42,9 @@ namespace GraphEditor
             edgeStart = false;
 
             GraphCanvas.Cursor = Cursors.Pen;
-
+            ZoomBox.CenterContent();
         }
+
 
         private void GraphCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -52,20 +53,24 @@ namespace GraphEditor
             switch (vm.ToolMode)
             {
                 case ToolMode.Vertex:
-                    ResetSelection();
-                    Border b = vm.NewVertex(position);
-                    b.MouseLeftButtonDown += Vertex_MouseLeftButtonDown;
-                    b.MouseLeftButtonUp += Vertex_MouseLeftButtonUp;
-                    b.MouseRightButtonDown += Vertex_MouseRightButtonDown;
-                    b.MouseMove += Vertex_MouseMove;
-                    //b.MouseWheel += Vertex_MouseWheel;
-                    //b.RenderTransform = new ScaleTransform();
-                    Canvas.SetLeft(b, position.X - 25);
-                    Canvas.SetTop(b, position.Y - 25);
-                    Panel.SetZIndex(b, 1);
-                    GraphCanvas.Children.Add(b);
+                    if (!ctrlHold)
+                    {
+                        ResetSelection();
+                        Border b = vm.NewVertex(position);
+                        b.MouseLeftButtonDown += Vertex_MouseLeftButtonDown;
+                        b.MouseLeftButtonUp += Vertex_MouseLeftButtonUp;
+                        b.MouseRightButtonDown += Vertex_MouseRightButtonDown;
+                        b.MouseMove += Vertex_MouseMove;
+                        Canvas.SetLeft(b, position.X - 25);
+                        Canvas.SetTop(b, position.Y - 25);
+                        Panel.SetZIndex(b, 1);
+                        GraphCanvas.Children.Add(b);
+                    }
                     break;
                 case ToolMode.Point:
+                    ResetSelection();
+                    break;
+                case ToolMode.Edge:
                     ResetSelection();
                     break;
 
@@ -229,6 +234,7 @@ namespace GraphEditor
             }
             else if (vm.ToolMode == ToolMode.Edge)
             {
+                ResetSelection();
                 Border bCh = b.Child as Border;
                 TextBlock tb = bCh.Child as TextBlock;
                 if (!edgeStart)
@@ -298,6 +304,7 @@ namespace GraphEditor
                 Vertex v = vm.Graph[tb.Text];
                 RemoveVertex(v, b);
             }
+            ResetSelection();
         }
 
         private void Vertex_MouseMove(object sender, MouseEventArgs e)
@@ -320,6 +327,7 @@ namespace GraphEditor
 
         private void Line_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            ResetSelection();
             if (vm.ToolMode == ToolMode.Edge)
             {
                 RemoveEdge(sender as Line);
