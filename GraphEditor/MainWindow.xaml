@@ -120,11 +120,27 @@
               Background="DimGray"
               Grid.Column="1" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
-                <MenuItem Header="Save">
+                <MenuItem Header="Open" Click="MenuOpen_Click">
+                    <MenuItem.Icon>
+                        <md:PackIcon Kind="FolderOpen"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="New" Click="MenuNew_Click">
+                    <MenuItem.Icon>
+                        <md:PackIcon Kind="File"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Save" Click="MenuSave_Click">
                     <MenuItem.Icon>
                         <md:PackIcon Kind="ContentSave"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="Save as" Click="MenuSaveAs_Click">
+                    <MenuItem.Icon>
+                        <md:PackIcon Kind="ContentSaveOutline"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+
             </MenuItem>
             <MenuItem Header="_Graph">
                 <MenuItem Header="Algorithms">

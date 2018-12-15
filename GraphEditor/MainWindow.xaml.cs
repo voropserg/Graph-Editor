@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Win32;
 
 namespace GraphEditor
 {
@@ -504,9 +506,31 @@ namespace GraphEditor
                 edgeLine.SetBinding(Line.X2Property, b2X);
                 edgeLine.SetBinding(Line.Y2Property, b2Y);
                 edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
+                edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                 GraphCanvas.Children.Add(edgeLine);
             }
         }
+
+        private void MenuOpen_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Load();
+            BuildCanvas();
+        }
+        private void MenuSave_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Save();
+        }
+        private void MenuSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            vm.SaveAs();
+        }
+
+        private void MenuNew_Click(object sender, RoutedEventArgs e)
+        {
+            vm.NewGraph();
+            BuildCanvas();
+        }
+
 
     }
 }

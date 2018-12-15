@@ -26,7 +26,6 @@ F:\Univ\GraphEditor\GraphEditor\bin\Debug\MaterialDesignColors.dll
 F:\Univ\GraphEditor\GraphEditor\bin\Debug\MaterialDesignThemes.Wpf.dll
 F:\Univ\GraphEditor\GraphEditor\bin\Debug\MaterialDesignThemes.Wpf.pdb
 F:\Univ\GraphEditor\GraphEditor\bin\Debug\MaterialDesignThemes.Wpf.xml
-F:\Univ\GraphEditor\GraphEditor\obj\Debug\GraphEditor.csprojResolveAssemblyReference.cache
 F:\Univ\GraphEditor\GraphEditor\obj\Debug\MainWindow.g.cs
 F:\Univ\GraphEditor\GraphEditor\obj\Debug\App.g.cs
 F:\Univ\GraphEditor\GraphEditor\obj\Debug\GraphEditor_MarkupCompile.cache
@@ -74,3 +73,4 @@ D:\VS\GraphEditor\GraphEditor\bin\Debug\ro\Xceed.Wpf.AvalonDock.resources.dll
 D:\VS\GraphEditor\GraphEditor\bin\Debug\ru\Xceed.Wpf.AvalonDock.resources.dll
 D:\VS\GraphEditor\GraphEditor\bin\Debug\sv\Xceed.Wpf.AvalonDock.resources.dll
 D:\VS\GraphEditor\GraphEditor\bin\Debug\zh-Hans\Xceed.Wpf.AvalonDock.resources.dll
+F:\Univ\GraphEditor\GraphEditor\obj\Debug\GraphEditor.csprojAssemblyReference.cache
