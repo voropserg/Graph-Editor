@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using Microsoft.Win32;
 
 
 namespace GraphEditor
@@ -33,8 +33,9 @@ namespace GraphEditor
 
         private Graph prevChange;
         private Graph redoGraph;
-
         private bool redoState;
+
+        private string currentFileName;
 
         private Graph graph;
 
@@ -64,6 +65,8 @@ namespace GraphEditor
 
             prevChange = DeepClone(graph);
             SaveGraphState();
+
+            currentFileName = "";
         }
 
         public ToolMode ToolMode
@@ -231,6 +234,63 @@ namespace GraphEditor
                 return (T)formater.Deserialize(ms);
             }
         }
+
+        public void SaveAs()
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            if (dialog.ShowDialog() == true)
+                Serialize(dialog.FileName);
+        }
+
+        public void Save()
+        {
+            if (currentFileName == "")
+                SaveAs();
+            else
+                Serialize(currentFileName);
+        }
+
+        private void Serialize(string name)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream(name, FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(stream, Graph);
+                Console.WriteLine("Serialized");
+            }
+            currentFileName = name;
+        }
+
+        public void Load()
+        {
+            if (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                Save();
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            if (dialog.ShowDialog() == true)
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream stream = new FileStream(dialog.FileName, FileMode.Open))
+                {
+                    Graph = (Graph) formatter.Deserialize(stream);
+                    Console.WriteLine("Deserialized");
+                }
+                currentFileName = dialog.FileName;
+                undoStack.Clear();
+                redoStack.Clear();
+            }
+
+        }
+
+        public void NewGraph()
+        {
+            if (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                Save();
+            Graph = new Graph();
+            currentFileName = "";
+        }
+
 
     }
 }
