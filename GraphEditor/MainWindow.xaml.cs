@@ -181,11 +181,6 @@ namespace GraphEditor
                     BuildCanvas();
                     Console.WriteLine("Redo Graph");
                 }
-                else if (e.Key == Key.L)
-                {
-                    RightPanel.Visibility = Visibility.Collapsed;
-                    Grid.SetColumnSpan(GraphCanvas, 2);
-                }
                 else if (e.Key == Key.Delete)
                 {
                     foreach (Edge edge in vm.SelectedEdges)
@@ -233,6 +228,12 @@ namespace GraphEditor
                     bCh.Background = vm.SelectedVertexBrush;
                 else
                     bCh.Background = vm.VertexBrush;
+                
+                if(vm.SelecteVertices.Count == 1 && vm.SelectedEdges.Count == 0)
+                {
+                    Binding bind = new Binding($"Graph[{vm.SelecteVertices[0].Name}].Name");
+                    VertexName.SetBinding(TextBox.TextProperty, bind);
+                }
             }
             else if (vm.ToolMode == ToolMode.Edge)
             {
@@ -272,14 +273,32 @@ namespace GraphEditor
                         double ay = udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
                         double bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
                         double by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
-                        Line wing1 = new Line();
-                        Line wing2 = new Line();
-                        wing1.Stroke = wing2.Stroke = edgeLine.Stroke = vm.EdgeBrush;
-                        wing1.StrokeThickness = wing2.StrokeThickness = edgeLine.StrokeThickness = 4;
-                        Panel.SetZIndex(wing1, 0);
-                        Panel.SetZIndex(wing2, 0);
-                        Panel.SetZIndex(edgeLine, 0);
+                        //Line wing1 = new Line();
+                        //Line wing2 = new Line();
+                        //wing1.Stroke = wing2.Stroke = edgeLine.Stroke = vm.EdgeBrush;
+                        //wing1.StrokeThickness = wing2.StrokeThickness = edgeLine.StrokeThickness = 4;
+                        //wing1.X1 = endVertex.Position.X + dx * 0.08;
+                        //wing1.Y1 = endVertex.Position.Y + dy * 0.08;
+                        //wing1.X2 = endVertex.Position.X + dx * 0.08 + bx * 25;
+                        //wing1.Y2 = endVertex.Position.Y + dy * 0.08 + by * 25;
+                        //Console.WriteLine(ax);
+                        //Console.WriteLine(ay);
+                        //GraphCanvas.Children.Add(wing1);
+                        //Panel.SetZIndex(wing1, 0);
+                        //Panel.SetZIndex(wing2, 0);
 
+                        //Line l = new Line();
+                        //l.X1 = endVertex.Position.X;
+                        //l.Y1 = endVertex.Position.Y;
+                        //l.X2 = endVertex.Position.X + udx * 50;
+                        //l.Y2 = endVertex.Position.Y + udy * 50;
+                        //l.StrokeThickness = 4;
+                        //l.Stroke = new SolidColorBrush(Colors.Green);
+                        //Panel.SetZIndex(edgeLine, 1);
+
+                        Panel.SetZIndex(edgeLine, 0);
+                        edgeLine.Stroke = vm.EdgeBrush;
+                        edgeLine.StrokeThickness = 4;
                         edgeLine.SetBinding(Line.X1Property, b1X);
                         edgeLine.SetBinding(Line.Y1Property, b1Y);
                         edgeLine.SetBinding(Line.X2Property, b2X);
@@ -287,6 +306,7 @@ namespace GraphEditor
                         edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
                         edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                         GraphCanvas.Children.Add(edgeLine);
+
                     }
 
 
@@ -531,6 +551,9 @@ namespace GraphEditor
             BuildCanvas();
         }
 
+        private void VertexName_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
     }
 }

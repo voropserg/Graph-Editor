@@ -32,7 +32,6 @@ namespace GraphEditor
         private Stack<Graph> redoStack;
 
         private Graph prevChange;
-        private Graph redoGraph;
         private bool redoState;
 
         private string currentFileName;
@@ -290,7 +289,6 @@ namespace GraphEditor
             Graph = new Graph();
             currentFileName = "";
         }
-
 
     }
 }
