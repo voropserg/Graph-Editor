@@ -111,6 +111,25 @@ namespace GraphEditor
                 }
             vertices.Remove(vertex);
         }
+        public void ValidateVertexNames()
+        {
+            foreach(Vertex v in vertices)
+            {
+                List<string> names = new List<string>();
+                for(int i = 0; i < names.Count; i++)
+                {
+                    if(!names[i].Equals(v.Name))
+                        names.Add(v.Name);
+                    else
+                    {
+                        Console.WriteLine("Name error");
+                        MessageBox.Show("Vertex names must be unique!", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        v.Name = $"V{vertexCount}";
+                        names.Add(v.Name);
+                    }
+                }
+            }
+        }
 
         //Edges
         public void AddEdge(Vertex firstVertex, Vertex secondVertex, EdgeOrientation orient = EdgeOrientation.None, int weight = 0)
@@ -267,6 +286,16 @@ namespace GraphEditor
                 OnPropertyChanged();
             }
 
+        }
+        public string StrWeight
+        {
+            get { return weight.ToString(); }
+            set
+            {
+                int res = 0;
+                if (Int32.TryParse(value, out res))
+                    Weight = res;
+            }
         }
         public EdgeOrientation Orientation
         {

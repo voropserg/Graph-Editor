@@ -71,6 +71,8 @@ namespace GraphEditor
                     break;
                 case ToolMode.Point:
                     ResetSelection();
+                    ChangeEdgePanelState(false);
+                    ChangeVertexPanelState(false);
                     break;
                 case ToolMode.Edge:
                     ResetSelection();
@@ -187,9 +189,9 @@ namespace GraphEditor
                         RemoveEdge(FindEdge(edge));
                     vm.SelectedEdges.Clear();
 
-                    foreach (Vertex v in vm.SelecteVertices)
+                    foreach (Vertex v in vm.SelectedVertices)
                         RemoveVertex(v, FindVertex(v));
-                    vm.SelecteVertices.Clear();
+                    vm.SelectedVertices.Clear();
 
                 }
             }
@@ -228,12 +230,12 @@ namespace GraphEditor
                     bCh.Background = vm.SelectedVertexBrush;
                 else
                     bCh.Background = vm.VertexBrush;
-                
-                if(vm.SelecteVertices.Count == 1 && vm.SelectedEdges.Count == 0)
-                {
-                    Binding bind = new Binding($"Graph[{vm.SelecteVertices[0].Name}].Name");
-                    VertexName.SetBinding(TextBox.TextProperty, bind);
-                }
+
+                ChangeEdgePanelState(false);
+                if(vm.SelectedVertices.Count == 1 && vm.SelectedEdges.Count == 0)
+                    ChangeVertexPanelState(true);
+                else
+                    ChangeVertexPanelState(false);
             }
             else if (vm.ToolMode == ToolMode.Edge)
             {
@@ -373,6 +375,13 @@ namespace GraphEditor
                     l.Stroke = vm.EdgeBrush;
                     Console.WriteLine("Edge desected");
                 }
+
+                ChangeVertexPanelState(false);
+                if (vm.SelectedVertices.Count == 0 && vm.SelectedEdges.Count == 1)
+                    ChangeEdgePanelState(true);
+                else
+                    ChangeEdgePanelState(false);
+
             }
             e.Handled = true;
         }
@@ -551,8 +560,79 @@ namespace GraphEditor
             BuildCanvas();
         }
 
-        private void VertexName_TextChanged(object sender, TextChangedEventArgs e)
+
+        private void ChangeVertexPanelState(bool open)
         {
+            if (open)
+            {
+                Grid.SetColumnSpan(ZoomBox, 1);
+                VertexAdjecent.Text = "";
+                RightPanelVertex.Visibility = Visibility.Visible;
+                Binding b = new Binding("SelectedVertices[0].Name");
+                b.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+                b.Mode = BindingMode.TwoWay;
+                VertexName.SetBinding(TextBox.TextProperty, b);
+                foreach(Vertex v in vm.SelectedVertices[0].Adjacent)
+                    VertexAdjecent.Text += v.Name + ", ";
+            }
+            else
+            {
+                Grid.SetColumnSpan(ZoomBox, 2);
+                RightPanelVertex.Visibility = Visibility.Collapsed;
+                BindingOperations.ClearBinding(VertexName, TextBox.TextProperty);
+            }
+        }
+
+        private void ChangeEdgePanelState(bool open)
+        {
+            if (open)
+            {
+                Grid.SetColumnSpan(ZoomBox, 1);
+                RightPanelEdge.Visibility = Visibility.Visible;
+                Binding b = new Binding("SelectedEdges[0].StrWeight");
+                b.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+                b.Mode = BindingMode.TwoWay;
+                EdgeWeight.SetBinding(TextBox.TextProperty, b);
+
+                switch (vm.SelectedEdges[0].Orientation)
+                {
+                    case EdgeOrientation.None:
+                        rbOrientNone.IsChecked = true;
+                        break;
+                    case EdgeOrientation.Direct:
+                        rbOrintDirect.IsChecked = true;
+                        break;
+                    case EdgeOrientation.Inverted:
+                        rbOrientInv.IsChecked = true;
+                        break;
+                }
+
+                EdgeFirstVertexName.Text = vm.SelectedEdges[0].FirstVertex.Name;
+                EdgeSecondVertexName.Text = vm.SelectedEdges[0].SecondVertex.Name;
+
+            }
+            else
+            {
+                Grid.SetColumnSpan(ZoomBox, 2);
+                RightPanelEdge.Visibility = Visibility.Collapsed;
+                BindingOperations.ClearBinding(EdgeWeight, TextBox.TextProperty);
+            }
+        }
+
+        private void VertexName_KeyUp(object sender, KeyEventArgs e)
+        {
+            vm.Graph.ValidateVertexNames();
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            RadioButton check = sender as RadioButton;
+            if (check == rbOrintDirect)
+                vm.SelectedEdges[0].Orientation = EdgeOrientation.Direct;
+            else if (check == rbOrientInv)
+                vm.SelectedEdges[0].Orientation = EdgeOrientation.Inverted;
+            else
+                vm.SelectedEdges[0].Orientation = EdgeOrientation.None;
 
         }
     }

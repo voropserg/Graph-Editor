@@ -88,7 +88,7 @@ namespace GraphEditor
             }
         }
 
-        public List<Vertex> SelecteVertices
+        public List<Vertex> SelectedVertices
         {
             get { return selectedVertices; }
         }
