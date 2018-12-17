@@ -18,7 +18,7 @@ using Microsoft.Win32;
 
 namespace GraphEditor
 {
-    enum ToolMode { Point, Vertex, Edge, Hand, Zoom}
+    enum ToolMode { Point, Vertex, Edge, Hand}
     class ViewModel : NotifyPropertyChanged
     {
         public double VERTEX_WIDTH = 50;
@@ -263,8 +263,7 @@ namespace GraphEditor
 
         public void Load()
         {
-            if (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                Save();
+            RequestSave();
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
             if (dialog.ShowDialog() == true)
@@ -281,6 +280,12 @@ namespace GraphEditor
             }
 
         }
+        public void RequestSave()
+        {
+            if (Graph.Edges.Count != 0 || Graph.Vertices.Count != 0)
+                if (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    Save();
+        }
 
         public void NewGraph()
         {
@@ -288,6 +293,15 @@ namespace GraphEditor
                 Save();
             Graph = new Graph();
             currentFileName = "";
+        }
+
+
+        public string Dijkstra()
+        {
+            if (SelectedVertices.Count != 1 || SelectedEdges.Count != 0)
+                return "Selecte source vertex";
+
+            return Graph.Dijkstra(SelectedVertices[0]);
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GraphEditor.Converters;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,7 +14,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.Win32;
 
 namespace GraphEditor
 {
@@ -45,8 +45,14 @@ namespace GraphEditor
 
             GraphCanvas.Cursor = Cursors.Pen;
             ZoomBox.CenterContent();
+
+            Closing += MainWindow_Closing;
         }
 
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            vm.RequestSave();
+        }
 
         private void GraphCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -72,6 +78,7 @@ namespace GraphEditor
                 case ToolMode.Point:
                     ResetSelection();
                     ChangeEdgePanelState(false);
+                    ChangeAlgPanelState(false);
                     ChangeVertexPanelState(false);
                     break;
                 case ToolMode.Edge:
@@ -103,53 +110,6 @@ namespace GraphEditor
             }
 
         }
-
-        //private void Vertex_MouseWheel(object sender, MouseWheelEventArgs e)
-        //{
-        //    if(e.Delta > 0)
-        //    {
-        //        foreach(UIElement ue in GraphCanvas.Children)
-        //        {
-        //            Border b = ue as Border;
-        //            if (b != null)
-        //            {
-        //                ScaleTransform st = b.RenderTransform as ScaleTransform;
-        //                st.ScaleX *= 1.1;
-        //                st.ScaleY *= 1.1;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        foreach (UIElement ue in GraphCanvas.Children)
-        //        {
-        //            Border b = ue as Border;
-        //            if (b != null)
-        //            {
-        //                ScaleTransform st = b.RenderTransform as ScaleTransform;
-        //                st.ScaleX /= 1.1;
-        //                st.ScaleY /= 1.1;
-        //            }
-        //        }
-
-        //    }
-        //}
-
-        //private void GraphCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
-        //{
-        //    Console.WriteLine("boop");
-        //    if (e.Delta > 0)
-        //    {
-        //        Scale.ScaleX *= 1.1;
-        //        Scale.ScaleY *= 1.1;
-        //    }
-        //    else if (e.Delta < 0)
-        //    {
-        //        Scale.ScaleX /= 1.1;
-        //        Scale.ScaleY /= 1.1;
-        //    }
-        //}
-
 
         private void GraphCanvas_Key(object sender, KeyEventArgs e)
         {
@@ -185,19 +145,25 @@ namespace GraphEditor
                 }
                 else if (e.Key == Key.Delete)
                 {
-                    foreach (Edge edge in vm.SelectedEdges)
-                        RemoveEdge(FindEdge(edge));
-                    vm.SelectedEdges.Clear();
-
-                    foreach (Vertex v in vm.SelectedVertices)
-                        RemoveVertex(v, FindVertex(v));
-                    vm.SelectedVertices.Clear();
+                    if (vm.SelectedEdges.Count > 0)
+                    {
+                        ChangeEdgePanelState(false);
+                        foreach (Edge edge in vm.SelectedEdges)
+                            RemoveEdge(FindEdge(edge));
+                        vm.SelectedEdges.Clear();
+                    }
+                    if (vm.SelectedVertices.Count > 0)
+                    {
+                        ChangeVertexPanelState(false);
+                        foreach (Vertex v in vm.SelectedVertices)
+                            RemoveVertex(v, FindVertex(v));
+                        vm.SelectedVertices.Clear();
+                    }
 
                 }
             }
 
         }
-
 
 
         private void Vertex_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -232,7 +198,8 @@ namespace GraphEditor
                     bCh.Background = vm.VertexBrush;
 
                 ChangeEdgePanelState(false);
-                if(vm.SelectedVertices.Count == 1 && vm.SelectedEdges.Count == 0)
+                ChangeAlgPanelState(false);
+                if (vm.SelectedVertices.Count == 1 && vm.SelectedEdges.Count == 0)
                     ChangeVertexPanelState(true);
                 else
                     ChangeVertexPanelState(false);
@@ -296,7 +263,28 @@ namespace GraphEditor
                         //l.Y2 = endVertex.Position.Y + udy * 50;
                         //l.StrokeThickness = 4;
                         //l.Stroke = new SolidColorBrush(Colors.Green);
-                        //Panel.SetZIndex(edgeLine, 1);
+                        //Panel.SetZIndex(l, 2);
+                        //GraphCanvas.Children.Add(l);
+
+                        //Binding wingX1A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
+                        //wingX1A.Converter = new PositionConverterX1A();
+                        //Binding wingY1A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
+                        //wingY1A.Converter = new PositionConverterY1A();
+                        //Binding wingX2A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
+                        //wingX2A.Converter = new PositionConverterX2A();
+                        //Binding wingY2A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
+                        //wingY2A.Converter = new PositionConverterY2A();
+
+                        //Line wing1A = new Line();
+                        //Panel.SetZIndex(wing1A, 0);
+                        //wing1A.SetBinding(Line.X1Property, wingX1A);
+                        //wing1A.SetBinding(Line.Y1Property, wingY1A);
+                        //wing1A.SetBinding(Line.X2Property, wingX2A);
+                        //wing1A.SetBinding(Line.Y2Property, wingY2A);
+
+                        //wing1A.Stroke = vm.EdgeBrush;
+                        //wing1A.StrokeThickness = 4;
+                        //GraphCanvas.Children.Add(wing1A);
 
                         Panel.SetZIndex(edgeLine, 0);
                         edgeLine.Stroke = vm.EdgeBrush;
@@ -309,6 +297,16 @@ namespace GraphEditor
                         edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                         GraphCanvas.Children.Add(edgeLine);
 
+                        //Border bOrient = new Border();
+                        //bOrient.Width = 50;
+                        //bOrient.Height = 50;
+                        //bOrient.CornerRadius = new CornerRadius(25); 
+                        //bOrient.Background = new SolidColorBrush(Colors.DarkGreen);
+                        //Canvas.SetLeft(bOrient, endVertex.Position.X - 25 + udx * 7);
+                        //Canvas.SetTop(bOrient, endVertex.Position.Y - 25 + udy * 7);
+                        //GraphCanvas.Children.Add(bOrient);
+
+                        
                     }
 
 
@@ -377,6 +375,7 @@ namespace GraphEditor
                 }
 
                 ChangeVertexPanelState(false);
+                ChangeAlgPanelState(false);
                 if (vm.SelectedVertices.Count == 0 && vm.SelectedEdges.Count == 1)
                     ChangeEdgePanelState(true);
                 else
@@ -389,8 +388,8 @@ namespace GraphEditor
 
         private void Tool_Click(object sender, RoutedEventArgs e)
         {
-            PointTool.Background = VertexTool.Background = EdgeTool.Background = HandTool.Background
-                = ZoomTool.Background = new SolidColorBrush(Colors.Transparent);
+            PointTool.Background = VertexTool.Background = EdgeTool.Background 
+                = HandTool.Background = new SolidColorBrush(Colors.Transparent);
             Button but = sender as Button;
             but.Background = new SolidColorBrush(Colors.LightSlateGray);
             switch (but.Name)
@@ -411,10 +410,6 @@ namespace GraphEditor
                     vm.ToolMode = ToolMode.Hand;
                     GraphCanvas.Cursor = Cursors.SizeAll;
                     break;
-                case "ZoomTool":
-                    vm.ToolMode = ToolMode.Zoom;
-                    GraphCanvas.Cursor = Cursors.ScrollNS;
-                    break;
             }
             if (tempLine != null)
             {
@@ -434,7 +429,8 @@ namespace GraphEditor
                 {
                     Border b = el as Border;
                     Border bCh = b.Child as Border;
-                    bCh.Background = vm.VertexBrush;
+                    if (bCh!=null)
+                        bCh.Background = vm.VertexBrush;
                 }
                 else if (el is Line)
                 {
@@ -553,11 +549,37 @@ namespace GraphEditor
         {
             vm.SaveAs();
         }
-
         private void MenuNew_Click(object sender, RoutedEventArgs e)
         {
             vm.NewGraph();
             BuildCanvas();
+        }
+        private void MenuClear_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Graph = new Graph();
+            BuildCanvas();
+        }
+
+        private void MenuAsearch_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void MenuDijkstra_Click(object sender, RoutedEventArgs e)
+        {
+            AlgRes.Text = vm.Dijkstra();
+            AlgTitle.Text = "Dijkstra's algorithm";
+            ChangeEdgePanelState(false);
+            ChangeVertexPanelState(false);
+            ChangeAlgPanelState(true);
+
+        }
+        private void MenuHamiltonian_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void MenuEulerian_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
 
@@ -619,6 +641,20 @@ namespace GraphEditor
             }
         }
 
+        private void ChangeAlgPanelState(bool open)
+        {
+            if (open)
+            {
+                Grid.SetColumnSpan(ZoomBox, 1);
+                RightPanelAlg.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Grid.SetColumnSpan(ZoomBox, 2);
+                RightPanelAlg.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void VertexName_KeyUp(object sender, KeyEventArgs e)
         {
             vm.Graph.ValidateVertexNames();
@@ -635,5 +671,8 @@ namespace GraphEditor
                 vm.SelectedEdges[0].Orientation = EdgeOrientation.None;
 
         }
+
+        
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Text;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -152,6 +153,20 @@ namespace GraphEditor
                     return e;
             return null;
         }
+        public Edge FindEdge(Vertex v1, Vertex v2, bool oriented)
+        {
+            if (!oriented)
+                foreach (Edge e in edges)
+                {
+                    if ((e.FirstVertex == v1 && e.SecondVertex == v2) || (e.FirstVertex == v2 && e.SecondVertex == v1))
+                        return e;
+                }
+            else
+                foreach (Edge e in edges)
+                    if (e.FirstVertex == v1 && e.SecondVertex == v2)
+                        return e;
+            return null;
+        }
         public void RemoveEdge(Edge edge)
         {
             edge.FirstVertex.Adjacent.Remove(edge.SecondVertex);
@@ -167,6 +182,64 @@ namespace GraphEditor
             return true;
         }
 
+        public string Dijkstra(Vertex source)
+        {
+            foreach (Edge e in edges)
+                if (e.Weight < 0)
+                    return "Weights must be greater then 0";
+
+            int[] dist = new int[vertices.Count];
+            bool[] sptSet = new bool[vertices.Count];
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                dist[i] = int.MaxValue;
+                sptSet[i] = false;
+            }
+
+            dist[vertices.IndexOf(source)] = 0;
+            for(int i = 0; i < vertices.Count - 1; i++)
+            {
+                int u = MinDistance(dist, sptSet);
+                sptSet[u] = true;
+                for (int j = 0; j < vertices.Count; j++)
+                {
+                    if (vertices[j].AdjecentWith(vertices[u]))
+                    {
+                        Console.WriteLine(vertices[j].Name + " " + vertices[u].Name);
+                        int weight = dist[u] + FindEdge(vertices[u], vertices[j], false).Weight;
+
+                        if (!sptSet[j] && dist[u] != int.MaxValue && weight < dist[j])
+                            dist[j] = weight;
+                    }
+                }
+            }
+            return FormatDijkstraOuptur(dist);
+        }
+
+        private int MinDistance(int[] dist, bool[] sptSet)
+        {
+            int min = int.MaxValue;
+            int minIndex = -1;
+            for(int i = 0; i < vertices.Count; i++)
+                if (!sptSet[i] && dist[i] <= min)
+                {
+                    min = dist[i];
+                    minIndex = i;
+                }
+            return minIndex;
+        }
+
+        private string FormatDijkstraOuptur(int[] dist)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < dist.Length; i++)
+            {
+                sb.Append(vertices[i].Name + ":    ");
+                sb.Append(dist[i]);
+                sb.Append('\n');
+            }
+            return sb.ToString();
+        }
 
         public Vertex this[string key]
         {
@@ -230,8 +303,6 @@ namespace GraphEditor
 
         public bool AdjecentWith(Vertex vertex)
         {
-            if (vertex == this)
-                return true;
             foreach (Vertex v in Adjacent)
                 if (v == vertex)
                     return true;

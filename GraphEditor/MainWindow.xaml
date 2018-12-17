@@ -19,13 +19,13 @@
         Title="Graph Editor" Height="768" Width="1024">
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.05*"/>
+            <RowDefinition Height="0.05*" MinHeight="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.10*" MaxWidth="75"/>
+            <ColumnDefinition Width="75"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="0.20*" MaxWidth="200"/>
+            <ColumnDefinition Width="0.20*" MaxWidth="250"/>
         </Grid.ColumnDefinitions>
 
         <Border Background="DimGray" BorderThickness="0.5">
@@ -94,18 +94,6 @@
                              Height="40"/>
             </Button>
 
-            <Button x:Name="ZoomTool"
-                    MinHeight="50"
-                    Margin="0,20"
-                    Grid.Row="5"
-                    ToolTip="Zoom tool"
-                    Click="Tool_Click"
-                    Style="{StaticResource MaterialDesignFlatButton}">
-                <md:PackIcon Kind="Magnify"
-                             Width="40"
-                             Height="40"/>
-            </Button>
-
 
 
 
@@ -128,7 +116,7 @@
         <StackPanel x:Name="RightPanelEdge" 
                     Grid.Column="2" Grid.Row="1"
                     VerticalAlignment="Center"
-                    Visibility="COllapsed">
+                    Visibility="Collapsed">
             <TextBlock Text="Edge" FontSize="25" TextAlignment="Center"/>
             <TextBox x:Name="EdgeWeight" Margin="8,25,8,25" md:HintAssist.Hint="Weight"/>
             <TextBlock Text="Orientation" FontSize="18" TextAlignment="Center"/>
@@ -156,6 +144,14 @@
                 <TextBlock x:Name="EdgeSecondVertexName" Margin="10,0,0,0" TextAlignment="Center"/>
             </WrapPanel>
 
+        </StackPanel>
+
+        <StackPanel x:Name="RightPanelAlg" 
+                    Grid.Column="2" Grid.Row="1"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed">
+            <TextBlock x:Name="AlgTitle" TextAlignment="Center" TextWrapping="WrapWithOverflow" FontSize="25"/>
+            <TextBlock x:Name="AlgRes" TextAlignment="Center" TextWrapping="WrapWithOverflow" Margin="8,25,8,0" FontSize="16"/>
         </StackPanel>
 
 
@@ -188,21 +184,13 @@
             </MenuItem>
             <MenuItem Header="_Graph">
                 <MenuItem Header="Algorithms">
-                    <MenuItem Header="A* search">
-
-                    </MenuItem>
-                    <MenuItem Header="Dijkstra's">
-
-                    </MenuItem>
-                    <MenuItem Header="Hamiltonian Circuits">
-
-                    </MenuItem>
-                    <MenuItem Header="Eulerian path">
-
-                    </MenuItem>
+                    <MenuItem Header="A* search"/>
+                    <MenuItem Header="Dijkstra's" Click="MenuDijkstra_Click"/>
+                    <MenuItem Header="Hamiltonian Circuits"/>
+                    <MenuItem Header="Eulerian path"/>
                 </MenuItem>
-                <MenuItem Header="Make oriented"/>
-            </MenuItem>
+                <MenuItem Header="Clear" Click="MenuClear_Click"/>
+                </MenuItem>
         </Menu>
 
         <xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
