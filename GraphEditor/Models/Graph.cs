@@ -188,6 +188,8 @@ namespace GraphEditor
                 if (e.Weight < 0)
                     return "Weights must be greater then 0";
 
+            bool oriented = IsOriented();
+
             int[] dist = new int[vertices.Count];
             bool[] sptSet = new bool[vertices.Count];
             for (int i = 0; i < vertices.Count; i++)
@@ -205,15 +207,18 @@ namespace GraphEditor
                 {
                     if (vertices[j].AdjecentWith(vertices[u]))
                     {
-                        Console.WriteLine(vertices[j].Name + " " + vertices[u].Name);
-                        int weight = dist[u] + FindEdge(vertices[u], vertices[j], false).Weight;
+                        Edge edge = FindEdge(vertices[u], vertices[j], oriented);
+                        if (edge != null)
+                        {
+                            int weight = dist[u] + edge.Weight;
 
-                        if (!sptSet[j] && dist[u] != int.MaxValue && weight < dist[j])
-                            dist[j] = weight;
+                            if (!sptSet[j] && dist[u] != int.MaxValue && weight < dist[j])
+                                dist[j] = weight;
+                        }
                     }
                 }
             }
-            return FormatDijkstraOuptur(dist);
+            return FormatDijkstraOutput(dist, source);
         }
 
         private int MinDistance(int[] dist, bool[] sptSet)
@@ -229,9 +234,10 @@ namespace GraphEditor
             return minIndex;
         }
 
-        private string FormatDijkstraOuptur(int[] dist)
+        private string FormatDijkstraOutput(int[] dist,Vertex source)
         {
             StringBuilder sb = new StringBuilder();
+            sb.Append("Source:    " + source.Name + '\n');
             for (int i = 0; i < dist.Length; i++)
             {
                 sb.Append(vertices[i].Name + ":    ");

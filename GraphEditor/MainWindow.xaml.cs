@@ -161,6 +161,12 @@ namespace GraphEditor
                     }
 
                 }
+                else if (e.Key == Key.A)
+                {
+                    ChangeEdgePanelState(false);
+                    ChangeVertexPanelState(false);
+                    ChangeAlgPanelState(true);
+                }
             }
 
         }
