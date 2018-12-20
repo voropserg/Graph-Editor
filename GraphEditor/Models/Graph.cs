@@ -346,7 +346,7 @@ namespace GraphEditor
             firstVertex.Edges.Add(this);
             secondVertex.Edges.Add(this);
 
-            this.weight = weight;
+            Weight = weight;
             Orientation = orient;
             ChangeDirection();
         }
@@ -375,6 +375,7 @@ namespace GraphEditor
             set
             {
                 weight = value;
+                WeightTextBlock.Text = value.ToString();
                 OnPropertyChanged();
             }
 
@@ -405,13 +406,6 @@ namespace GraphEditor
             return firstVertex == vertex || secondVertex == vertex ? true : false;
         }
 
-        //[NonSerialized]
-        //public Border firstVertexDirectionBorder = new Border()
-        //{ Width = 60, Height = 60, CornerRadius = new CornerRadius(30), Background = new SolidColorBrush(Colors.DarkSlateBlue) };
-        //[NonSerialized]
-        //public Border secondVertexDirectionBorder = new Border()
-        //{ Width = 60, Height = 60, CornerRadius = new CornerRadius(30), Background = new SolidColorBrush(Colors.DarkSlateBlue) };
-
         [NonSerialized]
         public Line FirstVertexWing1 = new Line()
         { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4};
@@ -428,6 +422,10 @@ namespace GraphEditor
         public Line SecondVertexWing2 = new Line()
         { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
 
+        [NonSerialized]
+        public TextBlock WeightTextBlock = new TextBlock()
+        { Foreground = new SolidColorBrush(Colors.DimGray), FontSize = 16 };
+
 
 
         public void ChangeDirection()
@@ -442,11 +440,6 @@ namespace GraphEditor
             double bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
             double by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
 
-            //Canvas.SetLeft(secondVertexDirectionBorder, secondVertex.Position.X - 25 + udx * 7);
-            //Canvas.SetTop(secondVertexDirectionBorder, secondVertex.Position.Y - 25 + udy * 7);
-            //Canvas.SetLeft(firstVertexDirectionBorder, firstVertex.Position.X - 25 - udx * 5);
-            //Canvas.SetTop(firstVertexDirectionBorder, firstVertex.Position.Y - 25 - udy * 5);
-
             SecondVertexWing1.X1 = secondVertex.Position.X + udx * 25;
             SecondVertexWing1.Y1 = secondVertex.Position.Y + udy * 25;
             SecondVertexWing1.X2 = SecondVertexWing1.X1 + 20 * ax;
@@ -456,6 +449,9 @@ namespace GraphEditor
             SecondVertexWing2.Y1 = secondVertex.Position.Y + udy * 25;
             SecondVertexWing2.X2 = SecondVertexWing2.X1 + 20 * bx;
             SecondVertexWing2.Y2 = SecondVertexWing2.Y1 + 20 * by;
+
+            Canvas.SetLeft(WeightTextBlock, SecondVertex.Position.X + dx / 2);
+            Canvas.SetTop(WeightTextBlock, SecondVertex.Position.Y + dy / 2 + 2);
 
             dx = secondVertex.Position.X - firstVertex.Position.X;
             dy = secondVertex.Position.Y - firstVertex.Position.Y;
@@ -478,10 +474,9 @@ namespace GraphEditor
             FirstVertexWing2.Y2 = FirstVertexWing2.Y1 + 20 * by;
 
 
-
         }
 
-        private void ChangeDirectionVisibility()
+        public void ChangeDirectionVisibility()
         {
             switch (Orientation)
             {

@@ -254,6 +254,8 @@ namespace GraphEditor
                         GraphCanvas.Children.Add(edge.SecondVertexWing2);
                         GraphCanvas.Children.Add(edge.FirstVertexWing1);
                         GraphCanvas.Children.Add(edge.FirstVertexWing2);
+                        GraphCanvas.Children.Add(edge.WeightTextBlock);
+                        Console.WriteLine(edge.WeightTextBlock.Text);
                     }
 
 
@@ -419,6 +421,7 @@ namespace GraphEditor
                 GraphCanvas.Children.Remove(edge.FirstVertexWing2);
                 GraphCanvas.Children.Remove(edge.SecondVertexWing1);
                 GraphCanvas.Children.Remove(edge.SecondVertexWing2);
+                GraphCanvas.Children.Remove(edge.WeightTextBlock);
             }
 
             vm.RemoveVertex(v);
@@ -437,6 +440,7 @@ namespace GraphEditor
             GraphCanvas.Children.Remove(edge.FirstVertexWing2);
             GraphCanvas.Children.Remove(edge.SecondVertexWing1);
             GraphCanvas.Children.Remove(edge.SecondVertexWing2);
+            GraphCanvas.Children.Remove(edge.WeightTextBlock);
         }
 
         private Border FindVertex(Vertex v)
@@ -508,6 +512,7 @@ namespace GraphEditor
                 GraphCanvas.Children.Add(e.SecondVertexWing2);
                 GraphCanvas.Children.Add(e.FirstVertexWing1);
                 GraphCanvas.Children.Add(e.FirstVertexWing2);
+                GraphCanvas.Children.Add(e.WeightTextBlock);
 
             }
         }

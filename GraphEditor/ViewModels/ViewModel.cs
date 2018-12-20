@@ -204,6 +204,7 @@ namespace GraphEditor
             {
                 redoStack.Push(DeepClone(Graph));
                 Graph = undoStack.Pop();
+                InitGraph();
                 prevChange = DeepClone(Graph);
                 redoState = false;
             }
@@ -220,6 +221,7 @@ namespace GraphEditor
                     undoStack.Push(prevChange);
                 }
                 Graph = redoStack.Pop();
+                InitGraph();
                 prevChange = DeepClone(Graph);
                 undoStack.Push(prevChange);
 
@@ -276,23 +278,32 @@ namespace GraphEditor
                 using (FileStream stream = new FileStream(dialog.FileName, FileMode.Open))
                 {
                     Graph = (Graph) formatter.Deserialize(stream);
-                    foreach(Edge e in Graph.Edges)
-                    {
-                        e.FirstVertexWing1 = new Line()
-                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
-                        e.FirstVertexWing2 = new Line()
-                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
-                        e.SecondVertexWing1 = new Line()
-                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
-                        e.SecondVertexWing2 = new Line()
-                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
-                        e.ChangeDirection();
-                    }
+                    InitGraph();
                     Console.WriteLine("Deserialized");
                 }
                 currentFileName = dialog.FileName;
                 undoStack.Clear();
                 redoStack.Clear();
+            }
+
+        }
+
+        private void InitGraph()
+        {
+            foreach (Edge e in Graph.Edges)
+            {
+                e.FirstVertexWing1 = new Line()
+                { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                e.FirstVertexWing2 = new Line()
+                { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                e.SecondVertexWing1 = new Line()
+                { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                e.SecondVertexWing2 = new Line()
+                { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                e.WeightTextBlock = new TextBlock()
+                { Foreground = new SolidColorBrush(Colors.DimGray), FontSize = 16, Text = e.Weight.ToString() };
+                e.ChangeDirection();
+                e.ChangeDirectionVisibility();
             }
 
         }
