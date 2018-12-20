@@ -51,7 +51,7 @@ namespace GraphEditor
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            vm.RequestSave();
+            e.Cancel = vm.RequestSave();
         }
 
         private void GraphCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -232,65 +232,12 @@ namespace GraphEditor
                     Vertex endVertex = vm.Graph[tb.Text];
                     if (!startVertex.AdjecentWith(endVertex))
                     {
-                        vm.AddEdge(startVertex, endVertex);
+                        Edge edge = vm.AddEdge(startVertex, endVertex, ctrlHold);
                         Binding b1X = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].FirstVertex.Position.X");
                         Binding b1Y = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].FirstVertex.Position.Y");
                         Binding b2X = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].SecondVertex.Position.X");
                         Binding b2Y = new Binding($"Graph[{startVertex.Name},{endVertex.Name}].SecondVertex.Position.Y");
                         Line edgeLine = new Line();
-
-                        double dx = startVertex.Position.X - endVertex.Position.X;
-                        double dy = startVertex.Position.Y - endVertex.Position.Y;
-                        double norm = Math.Sqrt(dx * dx + dy * dy);
-                        double udx = dx / norm;
-                        double udy = dy / norm;
-                        double ax = udx * Math.Sqrt(3) / 2 - udy * 1 / 2;
-                        double ay = udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
-                        double bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
-                        double by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
-                        //Line wing1 = new Line();
-                        //Line wing2 = new Line();
-                        //wing1.Stroke = wing2.Stroke = edgeLine.Stroke = vm.EdgeBrush;
-                        //wing1.StrokeThickness = wing2.StrokeThickness = edgeLine.StrokeThickness = 4;
-                        //wing1.X1 = endVertex.Position.X + dx * 0.08;
-                        //wing1.Y1 = endVertex.Position.Y + dy * 0.08;
-                        //wing1.X2 = endVertex.Position.X + dx * 0.08 + bx * 25;
-                        //wing1.Y2 = endVertex.Position.Y + dy * 0.08 + by * 25;
-                        //Console.WriteLine(ax);
-                        //Console.WriteLine(ay);
-                        //GraphCanvas.Children.Add(wing1);
-                        //Panel.SetZIndex(wing1, 0);
-                        //Panel.SetZIndex(wing2, 0);
-
-                        //Line l = new Line();
-                        //l.X1 = endVertex.Position.X;
-                        //l.Y1 = endVertex.Position.Y;
-                        //l.X2 = endVertex.Position.X + udx * 50;
-                        //l.Y2 = endVertex.Position.Y + udy * 50;
-                        //l.StrokeThickness = 4;
-                        //l.Stroke = new SolidColorBrush(Colors.Green);
-                        //Panel.SetZIndex(l, 2);
-                        //GraphCanvas.Children.Add(l);
-
-                        //Binding wingX1A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
-                        //wingX1A.Converter = new PositionConverterX1A();
-                        //Binding wingY1A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
-                        //wingY1A.Converter = new PositionConverterY1A();
-                        //Binding wingX2A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
-                        //wingX2A.Converter = new PositionConverterX2A();
-                        //Binding wingY2A = new Binding($"Graph[{startVertex.Name},{endVertex.Name}]");
-                        //wingY2A.Converter = new PositionConverterY2A();
-
-                        //Line wing1A = new Line();
-                        //Panel.SetZIndex(wing1A, 0);
-                        //wing1A.SetBinding(Line.X1Property, wingX1A);
-                        //wing1A.SetBinding(Line.Y1Property, wingY1A);
-                        //wing1A.SetBinding(Line.X2Property, wingX2A);
-                        //wing1A.SetBinding(Line.Y2Property, wingY2A);
-
-                        //wing1A.Stroke = vm.EdgeBrush;
-                        //wing1A.StrokeThickness = 4;
-                        //GraphCanvas.Children.Add(wing1A);
 
                         Panel.SetZIndex(edgeLine, 0);
                         edgeLine.Stroke = vm.EdgeBrush;
@@ -303,16 +250,10 @@ namespace GraphEditor
                         edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                         GraphCanvas.Children.Add(edgeLine);
 
-                        //Border bOrient = new Border();
-                        //bOrient.Width = 50;
-                        //bOrient.Height = 50;
-                        //bOrient.CornerRadius = new CornerRadius(25); 
-                        //bOrient.Background = new SolidColorBrush(Colors.DarkGreen);
-                        //Canvas.SetLeft(bOrient, endVertex.Position.X - 25 + udx * 7);
-                        //Canvas.SetTop(bOrient, endVertex.Position.Y - 25 + udy * 7);
-                        //GraphCanvas.Children.Add(bOrient);
-
-                        
+                        GraphCanvas.Children.Add(edge.SecondVertexWing1);
+                        GraphCanvas.Children.Add(edge.SecondVertexWing2);
+                        GraphCanvas.Children.Add(edge.FirstVertexWing1);
+                        GraphCanvas.Children.Add(edge.FirstVertexWing2);
                     }
 
 
@@ -369,14 +310,24 @@ namespace GraphEditor
                 if (!ctrlHold)
                     ResetSelection();
                 Line l = sender as Line;
-                if (vm.AddSelectedEdge(vm.Graph.FindEdge(new Point(l.X1, l.Y1), new Point(l.X2, l.Y2))))
+                Edge edge = vm.Graph.FindEdge(new Point(l.X1, l.Y1), new Point(l.X2, l.Y2));
+                if (vm.AddSelectedEdge(edge))
                 {
                     l.Stroke = vm.SelectedEdgeBrush;
+                    edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
                     Console.WriteLine("Edge selected");
                 }
                 else
                 {
                     l.Stroke = vm.EdgeBrush;
+                    edge.FirstVertexWing1.Stroke = vm.EdgeBrush;
+                    edge.FirstVertexWing2.Stroke = vm.EdgeBrush;
+                    edge.SecondVertexWing1.Stroke = vm.EdgeBrush;
+                    edge.SecondVertexWing2.Stroke = vm.EdgeBrush;
+
                     Console.WriteLine("Edge desected");
                 }
 
@@ -461,6 +412,15 @@ namespace GraphEditor
                         GraphCanvas.Children.Remove(l);
                     }
             }
+            
+            foreach (Edge edge in v.Edges)
+            {
+                GraphCanvas.Children.Remove(edge.FirstVertexWing1);
+                GraphCanvas.Children.Remove(edge.FirstVertexWing2);
+                GraphCanvas.Children.Remove(edge.SecondVertexWing1);
+                GraphCanvas.Children.Remove(edge.SecondVertexWing2);
+            }
+
             vm.RemoveVertex(v);
             GraphCanvas.Children.Remove(b);
 
@@ -470,8 +430,13 @@ namespace GraphEditor
         {
             Point p1 = new Point(l.X1, l.Y1);
             Point p2 = new Point(l.X2, l.Y2);
-            vm.RemoveEdge(vm.Graph.FindEdge(p1, p2));
+            Edge edge = vm.Graph.FindEdge(p1, p2);
+            vm.RemoveEdge(edge);
             GraphCanvas.Children.Remove(l);
+            GraphCanvas.Children.Remove(edge.FirstVertexWing1);
+            GraphCanvas.Children.Remove(edge.FirstVertexWing2);
+            GraphCanvas.Children.Remove(edge.SecondVertexWing1);
+            GraphCanvas.Children.Remove(edge.SecondVertexWing2);
         }
 
         private Border FindVertex(Vertex v)
@@ -539,6 +504,11 @@ namespace GraphEditor
                 edgeLine.MouseRightButtonDown += Line_MouseRightButtonDown;
                 edgeLine.MouseLeftButtonDown += Line_MouseLeftButtonDown;
                 GraphCanvas.Children.Add(edgeLine);
+                GraphCanvas.Children.Add(e.SecondVertexWing1);
+                GraphCanvas.Children.Add(e.SecondVertexWing2);
+                GraphCanvas.Children.Add(e.FirstVertexWing1);
+                GraphCanvas.Children.Add(e.FirstVertexWing2);
+
             }
         }
 
@@ -675,6 +645,7 @@ namespace GraphEditor
                 vm.SelectedEdges[0].Orientation = EdgeOrientation.Inverted;
             else
                 vm.SelectedEdges[0].Orientation = EdgeOrientation.None;
+            vm.SaveGraphState();
 
         }
 

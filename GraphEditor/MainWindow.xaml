@@ -129,6 +129,7 @@
                 <RadioButton x:Name="rbOrintDirect"
                              GroupName="Orientation" 
                              Content="Direct"
+                             Margin="0,5"
                              Checked="RadioButton_Checked"/>
                 <RadioButton x:Name="rbOrientInv"
                              GroupName="Orientation" 

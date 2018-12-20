@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
 using System.ComponentModel;
+using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -133,10 +137,12 @@ namespace GraphEditor
         }
 
         //Edges
-        public void AddEdge(Vertex firstVertex, Vertex secondVertex, EdgeOrientation orient = EdgeOrientation.None, int weight = 0)
+        public Edge AddEdge(Vertex firstVertex, Vertex secondVertex, EdgeOrientation orient = EdgeOrientation.None, int weight = 0)
         {
             edgeCount++;
-            edges.Add(new Edge(firstVertex, secondVertex, orient, weight));
+            Edge edge = new Edge(firstVertex, secondVertex, orient, weight);
+            edges.Add(edge);
+            return edge;
         }
         public Edge FindEdge(string vName1, string vName2)
         {
@@ -292,6 +298,8 @@ namespace GraphEditor
             set
             {
                 location = value;
+                foreach (Edge e in Edges)
+                    e.ChangeDirection();
                 OnPropertyChanged();
             }
         }
@@ -316,6 +324,8 @@ namespace GraphEditor
         }
 
 
+        public List<Edge> Edges = new List<Edge>();
+
     }
 
     [Serializable]
@@ -332,8 +342,13 @@ namespace GraphEditor
             secondVertex = vertex2;
             firstVertex.Adjacent.Add(secondVertex);
             secondVertex.Adjacent.Add(firstVertex);
+
+            firstVertex.Edges.Add(this);
+            secondVertex.Edges.Add(this);
+
             this.weight = weight;
-            orientation = orient;
+            Orientation = orient;
+            ChangeDirection();
         }
 
         public Vertex FirstVertex
@@ -380,6 +395,7 @@ namespace GraphEditor
             set
             {
                 orientation = value;
+                ChangeDirectionVisibility();
                 OnPropertyChanged();
             }
         }
@@ -388,6 +404,109 @@ namespace GraphEditor
         {
             return firstVertex == vertex || secondVertex == vertex ? true : false;
         }
+
+        //[NonSerialized]
+        //public Border firstVertexDirectionBorder = new Border()
+        //{ Width = 60, Height = 60, CornerRadius = new CornerRadius(30), Background = new SolidColorBrush(Colors.DarkSlateBlue) };
+        //[NonSerialized]
+        //public Border secondVertexDirectionBorder = new Border()
+        //{ Width = 60, Height = 60, CornerRadius = new CornerRadius(30), Background = new SolidColorBrush(Colors.DarkSlateBlue) };
+
+        [NonSerialized]
+        public Line FirstVertexWing1 = new Line()
+        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4};
+
+        [NonSerialized]
+        public Line FirstVertexWing2 = new Line()
+        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+
+        [NonSerialized]
+        public Line SecondVertexWing1 = new Line()
+        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+
+        [NonSerialized]
+        public Line SecondVertexWing2 = new Line()
+        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+
+
+
+        public void ChangeDirection()
+        {
+            double dx = firstVertex.Position.X - secondVertex.Position.X;
+            double dy = firstVertex.Position.Y - secondVertex.Position.Y;
+            double norm = Math.Sqrt(dx * dx + dy * dy);
+            double udx = dx / norm;
+            double udy = dy / norm;
+            double ax = udx * Math.Sqrt(3) / 2 - udy * 1 / 2;
+            double ay = udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+            double bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
+            double by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+
+            //Canvas.SetLeft(secondVertexDirectionBorder, secondVertex.Position.X - 25 + udx * 7);
+            //Canvas.SetTop(secondVertexDirectionBorder, secondVertex.Position.Y - 25 + udy * 7);
+            //Canvas.SetLeft(firstVertexDirectionBorder, firstVertex.Position.X - 25 - udx * 5);
+            //Canvas.SetTop(firstVertexDirectionBorder, firstVertex.Position.Y - 25 - udy * 5);
+
+            SecondVertexWing1.X1 = secondVertex.Position.X + udx * 25;
+            SecondVertexWing1.Y1 = secondVertex.Position.Y + udy * 25;
+            SecondVertexWing1.X2 = SecondVertexWing1.X1 + 20 * ax;
+            SecondVertexWing1.Y2 = SecondVertexWing1.Y1 + 20 * ay;
+
+            SecondVertexWing2.X1 = secondVertex.Position.X + udx * 25;
+            SecondVertexWing2.Y1 = secondVertex.Position.Y + udy * 25;
+            SecondVertexWing2.X2 = SecondVertexWing2.X1 + 20 * bx;
+            SecondVertexWing2.Y2 = SecondVertexWing2.Y1 + 20 * by;
+
+            dx = secondVertex.Position.X - firstVertex.Position.X;
+            dy = secondVertex.Position.Y - firstVertex.Position.Y;
+            norm = Math.Sqrt(dx * dx + dy * dy);
+            udx = dx / norm;
+            udy = dy / norm;
+            ax = udx * Math.Sqrt(3) / 2 - udy * 1 / 2;
+            ay = udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+            bx = udx * Math.Sqrt(3) / 2 + udy * 1 / 2;
+            by = -udx * 1 / 2 + udy * Math.Sqrt(3) / 2;
+
+            FirstVertexWing1.X1 = firstVertex.Position.X + udx * 25;
+            FirstVertexWing1.Y1 = firstVertex.Position.Y + udy * 25;
+            FirstVertexWing1.X2 = FirstVertexWing1.X1 + 20 * ax;
+            FirstVertexWing1.Y2 = FirstVertexWing1.Y1 + 20 * ay;
+
+            FirstVertexWing2.X1 = firstVertex.Position.X + udx * 25;
+            FirstVertexWing2.Y1 = firstVertex.Position.Y + udy * 25;
+            FirstVertexWing2.X2 = FirstVertexWing2.X1 + 20 * bx;
+            FirstVertexWing2.Y2 = FirstVertexWing2.Y1 + 20 * by;
+
+
+
+        }
+
+        private void ChangeDirectionVisibility()
+        {
+            switch (Orientation)
+            {
+                case EdgeOrientation.None:
+                    FirstVertexWing1.Visibility = Visibility.Hidden;
+                    FirstVertexWing2.Visibility = Visibility.Hidden;
+                    SecondVertexWing1.Visibility = Visibility.Hidden;
+                    SecondVertexWing2.Visibility = Visibility.Hidden;
+                    break;
+                case EdgeOrientation.Direct:
+                    FirstVertexWing1.Visibility = Visibility.Hidden;
+                    FirstVertexWing2.Visibility = Visibility.Hidden;
+                    SecondVertexWing1.Visibility = Visibility.Visible;
+                    SecondVertexWing2.Visibility = Visibility.Visible;
+                    break;
+                case EdgeOrientation.Inverted:
+                    FirstVertexWing1.Visibility = Visibility.Visible;
+                    FirstVertexWing2.Visibility = Visibility.Visible;
+                    SecondVertexWing1.Visibility = Visibility.Hidden;
+                    SecondVertexWing2.Visibility = Visibility.Hidden;
+                    break;
+
+            }
+        }
+
     }
 
 

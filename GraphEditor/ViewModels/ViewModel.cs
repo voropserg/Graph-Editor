@@ -116,10 +116,14 @@ namespace GraphEditor
             SaveGraphState();
         }
 
-        public void AddEdge(Vertex v1, Vertex v2)
+        public Edge AddEdge(Vertex v1, Vertex v2, bool oriented)
         {
-            Graph.AddEdge(v1, v2);
+            EdgeOrientation orient = EdgeOrientation.None;
+            if (oriented)
+                orient = EdgeOrientation.Direct;
+            Edge edge = Graph.AddEdge(v1, v2, orient);
             SaveGraphState();
+            return edge;
         }
 
         public Border RenderVertex(Vertex v)
@@ -272,6 +276,18 @@ namespace GraphEditor
                 using (FileStream stream = new FileStream(dialog.FileName, FileMode.Open))
                 {
                     Graph = (Graph) formatter.Deserialize(stream);
+                    foreach(Edge e in Graph.Edges)
+                    {
+                        e.FirstVertexWing1 = new Line()
+                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                        e.FirstVertexWing2 = new Line()
+                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                        e.SecondVertexWing1 = new Line()
+                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                        e.SecondVertexWing2 = new Line()
+                        { Stroke = new SolidColorBrush(Colors.Crimson), StrokeThickness = 4 };
+                        e.ChangeDirection();
+                    }
                     Console.WriteLine("Deserialized");
                 }
                 currentFileName = dialog.FileName;
@@ -280,11 +296,19 @@ namespace GraphEditor
             }
 
         }
-        public void RequestSave()
+        public bool RequestSave()
         {
             if (Graph.Edges.Count != 0 || Graph.Vertices.Count != 0)
-                if (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    Save();
+                switch (MessageBox.Show("Save current graph ?", "Save", MessageBoxButton.YesNoCancel))
+                {
+                    case MessageBoxResult.Yes:
+                        Save();
+                        break;
+                    case MessageBoxResult.Cancel:
+                        return true;
+                }
+            return false;
+
         }
 
         public void NewGraph()
