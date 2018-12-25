@@ -329,13 +329,12 @@ namespace GraphEditor
                     edge.FirstVertexWing2.Stroke = vm.EdgeBrush;
                     edge.SecondVertexWing1.Stroke = vm.EdgeBrush;
                     edge.SecondVertexWing2.Stroke = vm.EdgeBrush;
-
                     Console.WriteLine("Edge desected");
                 }
 
                 ChangeVertexPanelState(false);
                 ChangeAlgPanelState(false);
-                if (vm.SelectedVertices.Count == 0 && vm.SelectedEdges.Count == 1)
+                if (vm.SelectedVertices.Count == 0 && vm.SelectedEdges.Count >= 1)
                     ChangeEdgePanelState(true);
                 else
                     ChangeEdgePanelState(false);
@@ -539,19 +538,48 @@ namespace GraphEditor
         {
             vm.Graph = new Graph();
             BuildCanvas();
+            ChangeAlgPanelState(false);
+            ChangeEdgePanelState(false);
+            ChangeVertexPanelState(false);
         }
 
-        private void MenuAsearch_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
         private void MenuDijkstra_Click(object sender, RoutedEventArgs e)
         {
-            AlgRes.Text = vm.Dijkstra();
+            string res = vm.Dijkstra();
+            AlgRes.Text = res;
             AlgTitle.Text = "Dijkstra's algorithm";
             ChangeEdgePanelState(false);
             ChangeVertexPanelState(false);
             ChangeAlgPanelState(true);
+
+            if (vm.SelectedVertices.Count == 2)
+            {
+                string[] path = res.Split('\n')[3].Split(new char[] { '-', '>' });
+                Vertex prevVertex = vm.SelectedVertices[0];
+                //Edge edge = vm.Graph[prevVertex.Name, path[2]];
+                //vm.AddSelectedEdge(edge);
+                //edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                //edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                //edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                //edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                //FindEdge(edge).Stroke = vm.SelectedEdgeBrush;
+
+                for(int i = 2; i < path.Length; i += 2)
+                {
+                    Vertex vertex = vm.Graph[path[i]];
+                    vm.AddSelectedVertex(vertex);
+                    Border b = FindVertex(vertex).Child as Border;
+                    b.Background = vm.SelectedVertexBrush;
+                    Edge edge = vm.Graph.FindEdge(prevVertex, vertex, vm.Graph.IsOriented());
+                    vm.AddSelectedEdge(edge);
+                    edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                    FindEdge(edge).Stroke = vm.SelectedEdgeBrush;
+                    prevVertex = vertex;
+                }
+            }
 
         }
         private void MenuHamiltonian_Click(object sender, RoutedEventArgs e)
@@ -562,6 +590,19 @@ namespace GraphEditor
         {
 
         }
+
+        private void MenuOrient_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Graph.ChangeOrientation();
+            vm.SaveGraphState();
+        }
+        private void MenuDisor_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Graph.ChangeOrientation(EdgeOrientation.None);
+            vm.SaveGraphState();
+        }
+
+        
 
 
         private void ChangeVertexPanelState(bool open)
@@ -645,16 +686,21 @@ namespace GraphEditor
         {
             RadioButton check = sender as RadioButton;
             if (check == rbOrintDirect)
-                vm.SelectedEdges[0].Orientation = EdgeOrientation.Direct;
+                foreach(Edge edge in vm.SelectedEdges)
+                    edge.Orientation = EdgeOrientation.Direct;
             else if (check == rbOrientInv)
-                vm.SelectedEdges[0].Orientation = EdgeOrientation.Inverted;
+                foreach (Edge edge in vm.SelectedEdges)
+                    edge.Orientation = EdgeOrientation.Inverted;
             else
-                vm.SelectedEdges[0].Orientation = EdgeOrientation.None;
+                foreach (Edge edge in vm.SelectedEdges)
+                    edge.Orientation = EdgeOrientation.None;
             vm.SaveGraphState();
 
         }
 
-        
+        private void EdgeWeight_KeyUp(object sender, KeyEventArgs e)
+        {
 
+        }
     }
 }

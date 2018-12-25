@@ -333,10 +333,15 @@ namespace GraphEditor
 
         public string Dijkstra()
         {
-            if (SelectedVertices.Count != 1 || SelectedEdges.Count != 0)
-                return "Selecte source vertex";
-
-            return Graph.Dijkstra(SelectedVertices[0]);
+            if (SelectedEdges.Count > 0)
+                return "Select source and/or destination vertices only (no edges)";
+            if (SelectedVertices.Count < 1 )
+                return "Selecte source vertex and/or destination vertices";
+            if (SelectedVertices.Count == 1)
+                return Graph.Dijkstra(SelectedVertices[0]);
+            if (SelectedVertices.Count == 2)
+                return Graph.Dijkstra(SelectedVertices[0], SelectedVertices[1]);
+            return "Select source and/or destination vertices only";
         }
 
     }

@@ -159,7 +159,7 @@ namespace GraphEditor
                     return e;
             return null;
         }
-        public Edge FindEdge(Vertex v1, Vertex v2, bool oriented)
+        public Edge FindEdge(Vertex v1, Vertex v2, bool oriented = false)
         {
             if (!oriented)
                 foreach (Edge e in edges)
@@ -187,8 +187,14 @@ namespace GraphEditor
                     return false;
             return true;
         }
+        public void ChangeOrientation(EdgeOrientation orientation = EdgeOrientation.Direct)
+        {
+            foreach (Edge e in edges)
+                e.Orientation = orientation;
+        }
 
-        public string Dijkstra(Vertex source)
+        //Dijkstra
+        public string Dijkstra(Vertex source, Vertex destination = null)
         {
             foreach (Edge e in edges)
                 if (e.Weight < 0)
@@ -196,12 +202,14 @@ namespace GraphEditor
 
             bool oriented = IsOriented();
 
+            int[] parent = new int[vertices.Count];
             int[] dist = new int[vertices.Count];
             bool[] sptSet = new bool[vertices.Count];
             for (int i = 0; i < vertices.Count; i++)
             {
                 dist[i] = int.MaxValue;
                 sptSet[i] = false;
+                parent[i] = -1;
             }
 
             dist[vertices.IndexOf(source)] = 0;
@@ -219,12 +227,17 @@ namespace GraphEditor
                             int weight = dist[u] + edge.Weight;
 
                             if (!sptSet[j] && dist[u] != int.MaxValue && weight < dist[j])
+                            {                                    
+                                parent[j] = u;
                                 dist[j] = weight;
+                                if (destination == vertices[j])
+                                    return FormatDijkstraOutput(dist, parent, source, destination);
+                            }
                         }
                     }
                 }
             }
-            return FormatDijkstraOutput(dist, source);
+            return FormatDijkstraOutput(dist, parent, source);
         }
 
         private int MinDistance(int[] dist, bool[] sptSet)
@@ -240,18 +253,40 @@ namespace GraphEditor
             return minIndex;
         }
 
-        private string FormatDijkstraOutput(int[] dist,Vertex source)
+        private string FormatDijkstraOutput(int[] dist, int[] parent, Vertex source, Vertex destination = null)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("Source:    " + source.Name + '\n');
+            sb.Append("Source:    " + source.Name + "\n\n");
+            int index = vertices.IndexOf(source);
             for (int i = 0; i < dist.Length; i++)
             {
-                sb.Append(vertices[i].Name + ":    ");
-                sb.Append(dist[i]);
-                sb.Append('\n');
+                if (destination != null && vertices[i] != destination)
+                    continue;
+                if (i == index)
+                    continue;
+                sb.Append(vertices[i].Name + "\nPath: ");
+
+                sb.Append(FormatPath(parent, i));
+                sb.Append("\n Cost:");
+
+                if (dist[i] == int.MaxValue)
+                    sb.Append("Unreachable");
+                else
+                    sb.Append(dist[i]);
+
+                sb.Append("\n\n");
             }
             return sb.ToString();
         }
+
+        private string FormatPath(int[] parents, int parent)
+        {
+            if (parents[parent] == -1)
+                return "";
+
+            return FormatPath(parents, parents[parent]) + $"->{vertices[parent].Name}";
+        }
+        
 
         public Vertex this[string key]
         {

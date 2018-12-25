@@ -118,7 +118,7 @@
                     VerticalAlignment="Center"
                     Visibility="Collapsed">
             <TextBlock Text="Edge" FontSize="25" TextAlignment="Center"/>
-            <TextBox x:Name="EdgeWeight" Margin="8,25,8,25" md:HintAssist.Hint="Weight"/>
+            <TextBox x:Name="EdgeWeight" Margin="8,25,8,25" md:HintAssist.Hint="Weight" KeyUp="EdgeWeight_KeyUp"/>
             <TextBlock Text="Orientation" FontSize="18" TextAlignment="Center"/>
             
             <StackPanel  Margin="8,15,8,25">
@@ -185,13 +185,14 @@
             </MenuItem>
             <MenuItem Header="_Graph">
                 <MenuItem Header="Algorithms">
-                    <MenuItem Header="A* search"/>
                     <MenuItem Header="Dijkstra's" Click="MenuDijkstra_Click"/>
                     <MenuItem Header="Hamiltonian Circuits"/>
                     <MenuItem Header="Eulerian path"/>
                 </MenuItem>
                 <MenuItem Header="Clear" Click="MenuClear_Click"/>
-                </MenuItem>
+                <MenuItem Header="Orientade" Click="MenuOrient_Click"/>
+                <MenuItem Header="Disorientade" Click="MenuDisor_Click"/>
+            </MenuItem>
         </Menu>
 
         <xt:Zoombox x:Name="ZoomBox" Grid.Column="1" Grid.Row="1"
