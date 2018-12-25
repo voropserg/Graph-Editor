@@ -556,14 +556,6 @@ namespace GraphEditor
             {
                 string[] path = res.Split('\n')[3].Split(new char[] { '-', '>' });
                 Vertex prevVertex = vm.SelectedVertices[0];
-                //Edge edge = vm.Graph[prevVertex.Name, path[2]];
-                //vm.AddSelectedEdge(edge);
-                //edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
-                //edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
-                //edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
-                //edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
-                //FindEdge(edge).Stroke = vm.SelectedEdgeBrush;
-
                 for(int i = 2; i < path.Length; i += 2)
                 {
                     Vertex vertex = vm.Graph[path[i]];
@@ -590,6 +582,35 @@ namespace GraphEditor
         {
 
         }
+        private void MenuKruskal_Click(object sender, RoutedEventArgs e)
+        {
+            Edge[] res = vm.Graph.Kruskal();
+            if (res != null)
+                foreach (Edge edge in res)
+                {
+                    vm.AddSelectedEdge(edge);
+                    edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                    edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                    FindEdge(edge).Stroke = vm.SelectedEdgeBrush;
+
+                    vm.AddSelectedVertex(edge.FirstVertex);
+                    Border b = FindVertex(edge.FirstVertex).Child as Border;
+                    b.Background = vm.SelectedVertexBrush;
+
+                    vm.AddSelectedVertex(edge.SecondVertex);
+                    b = FindVertex(edge.SecondVertex).Child as Border;
+                    b.Background = vm.SelectedVertexBrush;
+
+                }
+            else
+                AlgRes.Text = "Graph has to be not oriented";
+            AlgTitle.Text = "Kruskal's MST";
+            ChangeAlgPanelState(true);
+
+        }
+
 
         private void MenuOrient_Click(object sender, RoutedEventArgs e)
         {
@@ -702,5 +723,6 @@ namespace GraphEditor
         {
 
         }
+
     }
 }

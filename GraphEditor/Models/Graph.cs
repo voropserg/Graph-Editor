@@ -286,6 +286,70 @@ namespace GraphEditor
 
             return FormatPath(parents, parents[parent]) + $"->{vertices[parent].Name}";
         }
+
+        //Kruskal
+        public Edge[] Kruskal()
+        {
+            if (IsOriented())
+                return null;
+            Edge[] result = new Edge[vertices.Count - 1];
+            int i = 0;
+            int e = 0;
+            edges.Sort(delegate (Edge a, Edge b)
+            {
+                return a.Weight.CompareTo(b.Weight);
+            });
+
+            Subset[] subsets = new Subset[vertices.Count];
+            for(int v = 0; v < vertices.Count; v++)
+            {
+                subsets[v].Parent = v;
+                subsets[v].Rank = 0;
+            }
+            
+            while(e < vertices.Count - 1)
+            {
+                Edge nextEdge = edges[i++];
+                int x = FindRoot(subsets, vertices.IndexOf(nextEdge.FirstVertex));
+                int y = FindRoot(subsets, vertices.IndexOf(nextEdge.SecondVertex));
+
+                if (x != y)
+                {
+                    result[e++] = nextEdge;
+                    Union(subsets, x, y);
+                }
+            }
+            return result;
+        }
+
+        private int FindRoot(Subset[] subsets, int i)
+        {
+            if (subsets[i].Parent != i)
+                subsets[i].Parent = FindRoot(subsets, subsets[i].Parent);
+            return subsets[i].Parent;
+        }
+
+        private void Union(Subset[] subsets, int x, int y)
+        {
+            int xroot = FindRoot(subsets, x);
+            int yroot = FindRoot(subsets, y);
+
+            if (subsets[xroot].Rank < subsets[yroot].Rank)
+                subsets[xroot].Parent = yroot;
+            else if (subsets[xroot].Rank > subsets[yroot].Rank)
+                subsets[yroot].Parent = xroot;
+            else
+            {
+                subsets[yroot].Parent = xroot;
+                ++subsets[xroot].Rank;
+            }
+        }
+
+        public struct Subset
+        {
+            public int Parent;
+            public int Rank;
+        }
         
 
         public Vertex this[string key]
