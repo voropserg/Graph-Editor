@@ -73,6 +73,13 @@ namespace GraphEditor
                         Canvas.SetTop(b, position.Y - 25);
                         Panel.SetZIndex(b, 1);
                         GraphCanvas.Children.Add(b);
+
+                        ChangeEdgePanelState(false);
+                        ChangeAlgPanelState(false);
+                        ChangeVertexPanelState(true);
+                        Border bCh = b.Child as Border;
+                        bCh.Background = vm.SelectedVertexBrush;
+
                     }
                     break;
                 case ToolMode.Point:
@@ -255,7 +262,16 @@ namespace GraphEditor
                         GraphCanvas.Children.Add(edge.FirstVertexWing1);
                         GraphCanvas.Children.Add(edge.FirstVertexWing2);
                         GraphCanvas.Children.Add(edge.WeightTextBlock);
-                        Console.WriteLine(edge.WeightTextBlock.Text);
+
+                        vm.AddSelectedEdge(edge);
+                        edgeLine.Stroke = vm.SelectedEdgeBrush;
+                        edge.FirstVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                        edge.FirstVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                        edge.SecondVertexWing1.Stroke = vm.SelectedEdgeBrush;
+                        edge.SecondVertexWing2.Stroke = vm.SelectedEdgeBrush;
+                        ChangeVertexPanelState(false);
+                        ChangeAlgPanelState(false);
+                        ChangeEdgePanelState(true);
                     }
 
 

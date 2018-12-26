@@ -101,6 +101,7 @@ namespace GraphEditor
         {
             Vertex v = Graph.AddVertex(p, name);
             SaveGraphState();
+            AddSelectedVertex(v);
             return RenderVertex(v);
         }
 
