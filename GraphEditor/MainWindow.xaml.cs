@@ -574,14 +574,6 @@ namespace GraphEditor
             }
 
         }
-        private void MenuHamiltonian_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void MenuEulerian_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
         private void MenuKruskal_Click(object sender, RoutedEventArgs e)
         {
             Edge[] res = vm.Graph.Kruskal();
@@ -602,14 +594,29 @@ namespace GraphEditor
                     vm.AddSelectedVertex(edge.SecondVertex);
                     b = FindVertex(edge.SecondVertex).Child as Border;
                     b.Background = vm.SelectedVertexBrush;
+                    AlgRes.Text = "";
 
                 }
             else
-                AlgRes.Text = "Graph has to be not oriented";
+                AlgRes.Text = "Graph has to be undirected";
             AlgTitle.Text = "Kruskal's MST";
+            ChangeEdgePanelState(false);
+            ChangeVertexPanelState(false);
             ChangeAlgPanelState(true);
 
         }
+        private void MenuHamilton_Click(object sender, RoutedEventArgs e)
+        {
+            AlgTitle.Text = "Hamiltonian Circuits";
+            if (vm.Graph.HamitonianCircuit())
+                AlgRes.Text = "Exists";
+            else
+                AlgRes.Text = "Does not exist";
+            ChangeEdgePanelState(false);
+            ChangeVertexPanelState(false);
+            ChangeAlgPanelState(true);
+        }
+
 
 
         private void MenuOrient_Click(object sender, RoutedEventArgs e)

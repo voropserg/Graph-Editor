@@ -239,7 +239,6 @@ namespace GraphEditor
             }
             return FormatDijkstraOutput(dist, parent, source);
         }
-
         private int MinDistance(int[] dist, bool[] sptSet)
         {
             int min = int.MaxValue;
@@ -252,7 +251,6 @@ namespace GraphEditor
                 }
             return minIndex;
         }
-
         private string FormatDijkstraOutput(int[] dist, int[] parent, Vertex source, Vertex destination = null)
         {
             StringBuilder sb = new StringBuilder();
@@ -278,7 +276,6 @@ namespace GraphEditor
             }
             return sb.ToString();
         }
-
         private string FormatPath(int[] parents, int parent)
         {
             if (parents[parent] == -1)
@@ -321,14 +318,12 @@ namespace GraphEditor
             }
             return result;
         }
-
         private int FindRoot(Subset[] subsets, int i)
         {
             if (subsets[i].Parent != i)
                 subsets[i].Parent = FindRoot(subsets, subsets[i].Parent);
             return subsets[i].Parent;
         }
-
         private void Union(Subset[] subsets, int x, int y)
         {
             int xroot = FindRoot(subsets, x);
@@ -344,13 +339,58 @@ namespace GraphEditor
                 ++subsets[xroot].Rank;
             }
         }
-
         public struct Subset
         {
             public int Parent;
             public int Rank;
         }
         
+        //Hamiltonian
+        public bool HamitonianCircuit()
+        {
+            int[] path = new int[vertices.Count];
+            for (int i = 0; i < path.Length; i++)
+                path[i] = -1;
+
+            path[0] = 0;
+
+            return HamCircUtil(path, 1);
+
+        }
+        private bool HamCircUtil(int[] path, int pos)
+        {
+            if (pos == vertices.Count)
+            {
+                if (vertices[pos - 1].AdjecentWith(vertices[0]))
+                    return true;
+                else
+                    return false;
+            }
+
+            for(int i = 1; i < vertices.Count; i++)
+            {
+                if(IsValidVertex(i, path, pos))
+                {
+                    path[pos] = i;
+
+                    if (HamCircUtil(path, pos + 1))
+                        return true;
+
+                    path[pos] = -1;
+                }
+            }
+            return false;
+        }
+        private bool IsValidVertex(int index, int[]path, int pos)
+        {
+            if(FindEdge(vertices[pos - 1], vertices[index], IsOriented()) == null)
+                return false;
+            foreach (int node in path)
+                if (node == index)
+                    return false;
+            return true;
+        }
+
 
         public Vertex this[string key]
         {

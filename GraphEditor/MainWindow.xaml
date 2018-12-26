@@ -187,8 +187,7 @@
                 <MenuItem Header="Algorithms">
                     <MenuItem Header="Dijkstra's" Click="MenuDijkstra_Click"/>
                     <MenuItem Header="Kruskal MST" Click="MenuKruskal_Click"/>
-                    <MenuItem Header="Hamiltonian Circuits"/>
-                    <MenuItem Header="Eulerian path"/>
+                    <MenuItem Header="Hamiltonian Circuit" Click="MenuHamilton_Click"/>
                 </MenuItem>
                 <MenuItem Header="Clear" Click="MenuClear_Click"/>
                 <MenuItem Header="Orientade" Click="MenuOrient_Click"/>
