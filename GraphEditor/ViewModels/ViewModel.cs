@@ -244,6 +244,7 @@ namespace GraphEditor
         {
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            dialog.FileName = currentFileName;
             if (dialog.ShowDialog() == true)
                 Serialize(dialog.FileName);
         }
