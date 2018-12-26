@@ -577,6 +577,7 @@ namespace GraphEditor
         private void MenuKruskal_Click(object sender, RoutedEventArgs e)
         {
             Edge[] res = vm.Graph.Kruskal();
+            int weightSum = 0;
             if (res != null)
                 foreach (Edge edge in res)
                 {
@@ -594,11 +595,11 @@ namespace GraphEditor
                     vm.AddSelectedVertex(edge.SecondVertex);
                     b = FindVertex(edge.SecondVertex).Child as Border;
                     b.Background = vm.SelectedVertexBrush;
-                    AlgRes.Text = "";
-
+                    weightSum += edge.Weight;
                 }
             else
                 AlgRes.Text = "Graph has to be undirected";
+            AlgRes.Text = $"Cost: {weightSum}";
             AlgTitle.Text = "Kruskal's MST";
             ChangeEdgePanelState(false);
             ChangeVertexPanelState(false);
