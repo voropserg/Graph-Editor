@@ -97,6 +97,22 @@ namespace GraphEditor
             get { return selectedEdges; }
         }
 
+        internal ToolMode ToolMode1
+        {
+            get => default(ToolMode);
+            set
+            {
+            }
+        }
+
+        public Graph Graph1
+        {
+            get => default(Graph);
+            set
+            {
+            }
+        }
+
         public Border NewVertex(Point p, string name = "")
         {
             Vertex v = Graph.AddVertex(p, name);

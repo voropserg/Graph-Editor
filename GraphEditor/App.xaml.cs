@@ -13,5 +13,12 @@ namespace GraphEditor
     /// </summary>
     public partial class App : Application
     {
+        public MainWindow MainWindow
+        {
+            get => default(MainWindow);
+            set
+            {
+            }
+        }
     }
 }

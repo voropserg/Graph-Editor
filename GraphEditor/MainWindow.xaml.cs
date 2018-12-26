@@ -49,6 +49,14 @@ namespace GraphEditor
             Closing += MainWindow_Closing;
         }
 
+        internal ViewModel ViewModel
+        {
+            get => default(ViewModel);
+            set
+            {
+            }
+        }
+
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = vm.RequestSave();

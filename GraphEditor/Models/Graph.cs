@@ -408,6 +408,21 @@ namespace GraphEditor
             get { return FindEdge(key1, key2); }
         }
 
+        public Edge Edge
+        {
+            get => default(Edge);
+            set
+            {
+            }
+        }
+
+        public Vertex Vertex
+        {
+            get => default(Vertex);
+            set
+            {
+            }
+        }
     }
 
     [Serializable]
@@ -641,6 +656,13 @@ namespace GraphEditor
             }
         }
 
+        public EdgeOrientation EdgeOrientation
+        {
+            get => default(EdgeOrientation);
+            set
+            {
+            }
+        }
     }
 
 
